@@ -142,6 +142,16 @@ section{display:flex;flex-direction:column;gap:12px}
 .entry .body{min-width:0}
 .entry .title{font-family:var(--font-display);font-weight:700;font-size:16px;overflow-wrap:anywhere}
 .entry .meta{font-size:12px;color:var(--muted)}
+.hilo{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.hilo span,.entry .chips span{font-size:13px;border-radius:99px;padding:2px 10px;font-variant-numeric:tabular-nums}
+.hilo .hi,.entry .chips .hi{background:color-mix(in srgb,#ff7a7a 18%,var(--surface));color:#d4475a}
+.hilo .lo,.entry .chips .lo{background:color-mix(in srgb,var(--rain) 20%,var(--surface));color:#3a7bc8}
+.entry .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.entry .chips span{font-size:12px;padding:1px 8px}
+.entry .chips span.hit,.entry .t.hit{outline:2px solid var(--mark);background:var(--mark);color:var(--fg)}
+.entry .t.hit{border-radius:10px;padding:0 4px}
+.hint{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:-4px}
+.hint .ex{font-size:12.5px;padding:3px 10px;border-width:1.5px}
 .entry .memo{margin-top:6px;font-size:14px;overflow-wrap:anywhere;background:var(--field);border-radius:4px 14px 14px 14px;padding:6px 10px;display:inline-block}
 .entry .side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;align-self:start}
 .entry .t{font-family:var(--font-display);font-weight:700;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -193,6 +203,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
           <div class="hero-text">
             <div class="temp" id="temp"></div>
             <div class="cond" id="cond"></div>
+            <div class="hilo" id="hilo"></div>
             <div class="chat" id="chat"></div>
           </div>
         </div>
@@ -226,9 +237,10 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
       <button id="migrateBtn" type="button">내 계정으로 옮기기</button>
     </div>
     <div class="filters">
-      <input id="q" type="search" placeholder="지역, 날씨, 메모로 검색" autocomplete="off">
+      <input id="q" type="search" placeholder="지역·날씨·메모·기온으로 검색" autocomplete="off">
       <input id="d" type="month" aria-label="월 선택">
     </div>
+    <div class="hint">기온 검색 예시 <button type="button" class="ex">25도</button><button type="button" class="ex">최고 30 이상</button><button type="button" class="ex">최저 영하 3</button><button type="button" class="ex">20~25</button></div>
     <div class="list" id="list"></div>
     <div class="foot">
       <button id="exportBtn" type="button">백업 파일 저장</button>
@@ -474,6 +486,7 @@ async function fetchWeather(lat, lon, name){
   try{
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
       `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m`+
+      `&daily=temperature_2m_max,temperature_2m_min&forecast_days=1`+
       `&wind_speed_unit=ms&timezone=auto`;
     const [wr, nm] = await Promise.all([
       fetch(url).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }),
@@ -484,7 +497,8 @@ async function fetchWeather(lat, lon, name){
       place:nm, lat:+lat.toFixed(4), lon:+lon.toFixed(4),
       temp:c.temperature_2m, feels:c.apparent_temperature, hum:c.relative_humidity_2m,
       rain:c.precipitation, code:c.weather_code, cond:WMO[c.weather_code] || "알 수 없음",
-      cloud:c.cloud_cover, pres:c.pressure_msl, wind:c.wind_speed_10m, windDir:c.wind_direction_10m
+      cloud:c.cloud_cover, pres:c.pressure_msl, wind:c.wind_speed_10m, windDir:c.wind_direction_10m,
+      tmax: wr.daily ? wr.daily.temperature_2m_max[0] : null, tmin: wr.daily ? wr.daily.temperature_2m_min[0] : null
     };
     renderNow(); setStatus("");
   }catch(e){
@@ -497,6 +511,8 @@ function renderNow(){
   $("obsTime").textContent=fmtDate(new Date().toISOString());
   $("temp").innerHTML=`${Math.round(c.temp*10)/10}<small>℃</small>`;
   $("cond").textContent=c.cond;
+  $("hilo").innerHTML = (c.tmax!=null && c.tmin!=null)
+    ? `<span class="hi">최고 ${Math.round(c.tmax)}°</span><span class="lo">최저 ${Math.round(c.tmin)}°</span>` : "";
   const k=kindOf(c.code);
   $("wicon").innerHTML=weatherIcon(k);
   $("chat").textContent=chatLine(c);
@@ -553,10 +569,47 @@ function updateSaveLabel(){
   $("saveBtn").textContent = (cloudEnabled && !user) ? "로그인하고 기록하기" : "이 날씨 기록하기";
 }
 
+/* ---------- temperature search ----------
+   "25" / "25도"      → 기록 기온·최고·최저 중 하나가 25°
+   "최고 30 이상"     → 그날 최고기온 30° 이상
+   "최저 영하 3"      → 그날 최저기온 -3°
+   "20~25"            → 20°~25° 사이                                  */
+function parseTempQuery(str){
+  const num = "(영하\\s*)?(-?\\d+(?:\\.\\d+)?)\\s*(?:도|℃|°c?|°)?";
+  const re = new RegExp("(최고|최저|현재|지금)?\\s*(?:기온|온도)?\\s*"+num+"(?:\\s*~\\s*"+num+")?\\s*(이상|이하|넘게|미만|초과)?","i");
+  const m = str.match(re); if(!m) return null;
+  const val = (neg,n) => (neg? -Math.abs(parseFloat(n)) : parseFloat(n));
+  const field = m[1]==="최고" ? "max" : m[1]==="최저" ? "min" : (m[1]==="현재"||m[1]==="지금") ? "now" : "any";
+  const a = val(m[2],m[3]);
+  let op="eq", b=null;
+  if(m[5]!==undefined){ op="range"; b=val(m[4],m[5]); }
+  else if(m[6]){ op = /이상|넘게/.test(m[6]) ? "ge" : /이하/.test(m[6]) ? "le" : m[6]==="미만" ? "lt" : "gt"; }
+  const rest = (str.slice(0,m.index)+" "+str.slice(m.index+m[0].length)).replace(/\s+/g," ").trim();
+  return {field, op, a, b, rest};
+}
+function tempHits(r,tq){
+  const vals = {now:r.temp, max:r.tmax, min:r.tmin};
+  const keys = tq.field==="any" ? ["now","max","min"] : [tq.field];
+  const lo = tq.op==="range" ? Math.min(tq.a,tq.b) : null, hi = tq.op==="range" ? Math.max(tq.a,tq.b) : null;
+  const out = new Set();
+  for(const k of keys){
+    const v = vals[k]; if(v==null || isNaN(v)) continue;
+    const t = Math.round(v);
+    const ok = tq.op==="eq" ? t===Math.round(tq.a)
+             : tq.op==="ge" ? t>=tq.a : tq.op==="le" ? t<=tq.a
+             : tq.op==="gt" ? t>tq.a : tq.op==="lt" ? t<tq.a
+             : t>=lo && t<=hi;
+    if(ok) out.add(k);
+  }
+  return out;
+}
+document.querySelectorAll(".hint .ex").forEach(b=>b.addEventListener("click",()=>{ $("q").value=b.textContent; renderList(); }));
+
 /* ---------- list ---------- */
 function renderList(){
   updateSaveLabel();
-  const q=$("q").value.trim(), m=$("d").value, list=$("list"), ql=q.toLowerCase();
+  const raw=$("q").value.trim(), m=$("d").value, list=$("list");
+  const tq=parseTempQuery(raw), q=tq?tq.rest:raw, tl=q.toLowerCase();
   if(cloudEnabled && !user){
     $("count").textContent="";
     list.innerHTML = fb
@@ -567,21 +620,24 @@ function renderList(){
   }
   const shown = records.filter(r=>{
     if(m){ const d=new Date(r.at); const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; if(ym!==m) return false; }
-    return !ql || [r.place,r.cond,r.memo].join(" ").toLowerCase().includes(ql);
+    if(tq){ if(!tempHits(r,tq).size) return false; }
+    return !tl || [r.place,r.cond,r.memo].join(" ").toLowerCase().includes(tl);
   });
   $("count").textContent = records.length ? (shown.length===records.length ? `${records.length}개` : `${shown.length} / ${records.length}개`) : "";
   if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘이 날씨 기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
   if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>찾는 기록이 없어요. 다른 말로 검색해 볼까요?</span></div>`; return; }
+  const hits = r => tq ? tempHits(r,tq) : new Set();
   list.innerHTML = shown.map(r=>`
     <div class="entry">
       <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
+        ${(r.tmax!=null&&r.tmin!=null)?`<div class="chips"><span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span></div>`:""}
         <div class="meta">${fmtDate(r.at)} · 습도 ${r.hum}% · ${dirName(r.windDir)} ${Number(r.wind).toFixed(1)}m/s</div>
         ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
       </div>
       <div class="side">
-        <div class="t">${Math.round(r.temp)}°</div>
+        <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${Math.round(r.temp)}°</div>
         <button class="del" type="button" data-id="${esc(r.id)}">삭제</button>
       </div>
     </div>`).join("");

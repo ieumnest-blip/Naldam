@@ -131,8 +131,60 @@ button:disabled{opacity:.55;cursor:default;transform:none}
 section{display:flex;flex-direction:column;gap:12px}
 .sechead{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .sechead h2{font-family:var(--font-display);font-weight:700;font-size:21px;margin:0}
-.filters{display:grid;grid-template-columns:1fr 160px;gap:8px}
-@media (max-width:420px){.filters{grid-template-columns:1fr}}
+.filters{display:grid;grid-template-columns:1fr auto;gap:8px}
+#advBtn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+#advBtn[aria-expanded="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.badge{min-width:20px;height:20px;border-radius:99px;background:var(--accent-deep);color:#fff;font-size:12px;display:inline-grid;place-items:center;padding:0 6px}
+#advBtn[aria-expanded="true"] .badge{background:var(--surface);color:var(--accent-deep)}
+.tabs{display:flex;gap:4px;background:var(--surface);border-radius:99px;padding:4px;align-self:flex-start;box-shadow:var(--shadow)}
+.tabs button{border:0;background:transparent;padding:6px 18px;font-size:15px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg)}
+.tabs button:hover{transform:none}
+.adv{background:var(--surface);border-radius:22px;padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.adv-row{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:start}
+.adv-label{font-family:var(--font-display);font-weight:700;font-size:14px;padding-top:7px}
+.adv-field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.adv-note{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);padding-top:6px}
+.adv-note .ex{font-size:12.5px;padding:3px 10px;border-width:1.5px}
+.dates{display:flex;align-items:center;gap:6px}
+.dates input{min-width:0;flex:1;padding:8px 10px}
+.chipset,.adv-field.chipset{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px}
+.chipset button{font-size:13.5px;padding:5px 12px;border-width:1.5px}
+.chipset button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var(--line);border-radius:16px;padding:8px 12px;width:100%}
+.adv-foot{display:flex;justify-content:flex-end}
+.adv-foot button{font-size:13px;padding:6px 14px;background:transparent}
+.active{display:flex;flex-wrap:wrap;gap:6px;font-size:13px}
+.active span{background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-deep);border-radius:99px;padding:2px 10px}
+.foot .excel{background:var(--mint);border-color:var(--mint);color:#174a3e}
+/* stats */
+.stats{display:flex;flex-direction:column;gap:14px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--surface);border-radius:20px;padding:12px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .k{font-size:12.5px;color:var(--muted)}
+.tile .v{font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:14px;color:var(--muted);margin-left:2px}
+.tile .s{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.panel{background:var(--surface);border-radius:22px;padding:14px 14px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;position:relative}
+.panel h3{font-family:var(--font-display);font-weight:700;font-size:16px;margin:0}
+.panel .sub{font-size:12px;color:var(--muted);margin-top:-6px}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;max-height:340px;overflow:visible}
+.chart .ax{fill:var(--muted);font-size:10.5px;font-family:var(--font-body)}
+.chart .val{fill:var(--fg);font-size:11.5px;font-family:var(--font-body);font-weight:700}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .hit{fill:transparent;cursor:pointer}
+.chart .band.on{fill:color-mix(in srgb,var(--accent) 10%,transparent)}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);border-radius:12px;padding:8px 10px;font-size:12.5px;line-height:1.5;white-space:nowrap;transform:translate(-50%,-100%);box-shadow:0 6px 16px rgba(0,0,0,.18);z-index:2}
+.tip b{font-family:var(--font-display)}
+.tablewrap{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:400;color:var(--muted);font-size:12px}
+td.hi{color:#d4475a} td.lo{color:#3a7bc8}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .list{display:flex;flex-direction:column;gap:10px}
 .entry{display:grid;grid-template-columns:56px 1fr auto;gap:2px 12px;padding:12px 14px;background:var(--surface);border-radius:22px;box-shadow:var(--shadow);align-items:center}
 .entry .ic{width:56px;height:56px;border-radius:18px;background:var(--sky-part);display:grid;place-items:center}
@@ -232,17 +284,39 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
 
   <section>
     <div class="sechead"><h2>날씨 일기장</h2><span class="count" id="count"></span></div>
+    <div class="tabs" role="tablist" aria-label="일기장 보기">
+      <button type="button" role="tab" id="tabDiary" aria-selected="true" aria-controls="paneDiary">기록</button>
+      <button type="button" role="tab" id="tabStats" aria-selected="false" aria-controls="paneStats">통계</button>
+    </div>
     <div class="migrate" id="migrate" hidden>
       <span id="migrateText"></span>
       <button id="migrateBtn" type="button">내 계정으로 옮기기</button>
     </div>
     <div class="filters">
       <input id="q" type="search" placeholder="지역·날씨·메모·기온으로 검색" autocomplete="off">
-      <input id="d" type="month" aria-label="월 선택">
+      <button type="button" id="advBtn" aria-expanded="false" aria-controls="adv">조건 검색<span class="badge" id="advCount" hidden></span></button>
     </div>
-    <div class="hint">기온 검색 예시 <button type="button" class="ex">25도</button><button type="button" class="ex">최고 30 이상</button><button type="button" class="ex">최저 영하 3</button><button type="button" class="ex">20~25</button></div>
-    <div class="list" id="list"></div>
+    <div class="adv" id="adv" hidden>
+      <div class="adv-row"><span class="adv-label">기간</span>
+        <div class="adv-field"><div class="dates"><input type="date" id="from" aria-label="시작 날짜"><span>~</span><input type="date" id="to" aria-label="끝 날짜"></div>
+        <div class="chipset" id="quick"><button type="button" data-q="7">최근 7일</button><button type="button" data-q="30">최근 30일</button><button type="button" data-q="month">이번 달</button><button type="button" data-q="year">올해</button></div></div>
+      </div>
+      <div class="adv-row"><span class="adv-label">날씨</span>
+        <div class="adv-field chipset" id="kinds"><button type="button" data-k="clear" aria-pressed="false">맑은 날</button><button type="button" data-k="cloudy" aria-pressed="false">흐린 날</button><button type="button" data-k="wet" aria-pressed="false">비 온 날</button><button type="button" data-k="snow" aria-pressed="false">눈 온 날</button><button type="button" data-k="storm" aria-pressed="false">뇌우</button></div>
+      </div>
+      <div class="adv-row"><label class="adv-label" for="placeSel">지역</label>
+        <div class="adv-field"><select id="placeSel"><option value="">모든 지역</option></select></div>
+      </div>
+      <div class="adv-row"><span class="adv-label">기온</span>
+        <div class="adv-field adv-note">위 검색창에 입력해요 · <button type="button" class="ex">25도</button><button type="button" class="ex">최고 30 이상</button><button type="button" class="ex">최저 영하 3</button><button type="button" class="ex">20~25</button></div>
+      </div>
+      <div class="adv-foot"><button type="button" id="advReset">조건 모두 지우기</button></div>
+    </div>
+    <div class="active" id="active" hidden></div>
+    <div id="paneDiary" role="tabpanel" aria-labelledby="tabDiary"><div class="list" id="list"></div></div>
+    <div id="paneStats" role="tabpanel" aria-labelledby="tabStats" hidden></div>
     <div class="foot">
+      <button id="excelBtn" type="button" class="excel">엑셀로 내보내기</button>
       <button id="exportBtn" type="button">백업 파일 저장</button>
       <button id="importBtn" type="button">백업 불러오기</button>
       <input id="importFile" type="file" accept="application/json,.json" hidden>
@@ -486,7 +560,7 @@ async function fetchWeather(lat, lon, name){
   try{
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
       `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m`+
-      `&daily=temperature_2m_max,temperature_2m_min&forecast_days=1`+
+      `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=1`+
       `&wind_speed_unit=ms&timezone=auto`;
     const [wr, nm] = await Promise.all([
       fetch(url).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }),
@@ -498,7 +572,8 @@ async function fetchWeather(lat, lon, name){
       temp:c.temperature_2m, feels:c.apparent_temperature, hum:c.relative_humidity_2m,
       rain:c.precipitation, code:c.weather_code, cond:WMO[c.weather_code] || "알 수 없음",
       cloud:c.cloud_cover, pres:c.pressure_msl, wind:c.wind_speed_10m, windDir:c.wind_direction_10m,
-      tmax: wr.daily ? wr.daily.temperature_2m_max[0] : null, tmin: wr.daily ? wr.daily.temperature_2m_min[0] : null
+      tmax: wr.daily ? wr.daily.temperature_2m_max[0] : null, tmin: wr.daily ? wr.daily.temperature_2m_min[0] : null,
+      psum: wr.daily && wr.daily.precipitation_sum ? wr.daily.precipitation_sum[0] : null
     };
     renderNow(); setStatus("");
   }catch(e){
@@ -603,13 +678,237 @@ function tempHits(r,tq){
   }
   return out;
 }
-document.querySelectorAll(".hint .ex").forEach(b=>b.addEventListener("click",()=>{ $("q").value=b.textContent; renderList(); }));
+document.querySelectorAll(".adv-note .ex").forEach(b=>b.addEventListener("click",()=>{ $("q").value=b.textContent; renderList(); }));
+
+/* ---------- conditions ---------- */
+let activeTab = "diary";
+function localDay(d){ const p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+const dayKey = r => localDay(new Date(r.at));
+const monthKey = r => dayKey(r).slice(0,7);
+const precip = r => (r.psum!=null ? r.psum : (r.rain||0));
+function isWet(r){ const k=kindOf(r.code); return k==="rain" || k==="storm" || (k!=="snow" && precip(r)>0); }
+const KIND_TEST = {
+  clear: r => ["sun","part"].includes(kindOf(r.code)),
+  cloudy: r => ["cloud","fog"].includes(kindOf(r.code)),
+  wet: isWet,
+  snow: r => kindOf(r.code)==="snow",
+  storm: r => kindOf(r.code)==="storm"
+};
+const KIND_LABEL = {clear:"맑은 날", cloudy:"흐린 날", wet:"비 온 날", snow:"눈 온 날", storm:"뇌우"};
+function selectedKinds(){ return [...$("kinds").querySelectorAll('button[aria-pressed="true"]')].map(b=>b.dataset.k); }
+function filterRecords(){
+  const raw=$("q").value.trim();
+  const tq=parseTempQuery(raw), q=tq?tq.rest:raw, tl=q.toLowerCase();
+  const from=$("from").value, to=$("to").value, place=$("placeSel").value, kinds=selectedKinds();
+  // 비/눈은 그날 한 번이라도 왔으면 그날 기록 전체를 포함
+  const dayFlags = {};
+  if(kinds.length) for(const r of records){ const d=dayKey(r); dayFlags[d] ||= new Set(); for(const k of kinds) if(KIND_TEST[k](r)) dayFlags[d].add(k); }
+  const shown = records.filter(r=>{
+    const d=dayKey(r);
+    if(from && d<from) return false;
+    if(to && d>to) return false;
+    if(place && r.place!==place) return false;
+    if(kinds.length && !(dayFlags[d] && dayFlags[d].size)) return false;
+    if(tq && !tempHits(r,tq).size) return false;
+    return !tl || [r.place,r.cond,r.memo].join(" ").toLowerCase().includes(tl);
+  });
+  return {shown, tq, q};
+}
+function fillPlaces(){
+  const sel=$("placeSel"), cur=sel.value;
+  const places=[...new Set(records.map(r=>r.place).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ko"));
+  sel.innerHTML=`<option value="">모든 지역</option>`+places.map(p=>`<option>${esc(p)}</option>`).join("");
+  sel.value = places.includes(cur) ? cur : "";
+}
+function renderActive(tq){
+  const tags=[];
+  const from=$("from").value, to=$("to").value;
+  if(from||to) tags.push(`${from?from.replace(/-/g,"."):"처음"} ~ ${to?to.replace(/-/g,"."):"오늘"}`);
+  if($("placeSel").value) tags.push($("placeSel").value);
+  selectedKinds().forEach(k=>tags.push(KIND_LABEL[k]));
+  if(tq){ const f={any:"기온",max:"최고",min:"최저",now:"기록 기온"}[tq.field];
+    const v = tq.op==="range" ? `${tq.a}~${tq.b}°` : `${tq.a}°${{eq:"",ge:" 이상",le:" 이하",gt:" 초과",lt:" 미만"}[tq.op]}`; tags.push(`${f} ${v}`); }
+  const n = (from||to?1:0) + ($("placeSel").value?1:0) + selectedKinds().length;
+  $("advCount").hidden = !n; $("advCount").textContent = n;
+  $("active").hidden = !tags.length;
+  $("active").innerHTML = tags.map(t=>`<span>${esc(t)}</span>`).join("");
+}
+function setTab(t){
+  activeTab=t;
+  $("tabDiary").setAttribute("aria-selected", String(t==="diary"));
+  $("tabStats").setAttribute("aria-selected", String(t==="stats"));
+  $("paneDiary").hidden = t!=="diary";
+  $("paneStats").hidden = t!=="stats";
+  renderList();
+}
+
+/* ---------- statistics ---------- */
+const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
+const r1 = v => v==null ? null : Math.round(v*10)/10;
+function summarizeDays(list){
+  const days={};
+  for(const r of list){
+    const k=dayKey(r);
+    const d = days[k] ||= {day:k, temps:[], hi:-Infinity, lo:Infinity, wet:false, snow:false, rain:0, recs:0};
+    d.recs++; d.temps.push(r.temp);
+    d.hi = Math.max(d.hi, r.tmax!=null ? r.tmax : r.temp);
+    d.lo = Math.min(d.lo, r.tmin!=null ? r.tmin : r.temp);
+    d.wet ||= isWet(r); d.snow ||= kindOf(r.code)==="snow";
+    d.rain = Math.max(d.rain, precip(r));
+  }
+  return Object.values(days).sort((a,b)=>a.day.localeCompare(b.day));
+}
+function summarizeMonths(days){
+  const m={};
+  for(const d of days){
+    const k=d.day.slice(0,7);
+    const x = m[k] ||= {month:k, days:0, recs:0, temps:[], his:[], los:[], wet:0, snow:0, rain:0};
+    x.days++; x.recs+=d.recs; x.temps.push(...d.temps); x.his.push(d.hi); x.los.push(d.lo);
+    if(d.wet) x.wet++; if(d.snow) x.snow++; x.rain+=d.rain;
+  }
+  return Object.values(m).sort((a,b)=>a.month.localeCompare(b.month)).map(x=>({
+    month:x.month, days:x.days, recs:x.recs,
+    avgTemp:avg(x.temps), avgHi:avg(x.his), avgLo:avg(x.los),
+    maxHi:Math.max(...x.his), minLo:Math.min(...x.los), wet:x.wet, snow:x.snow, rain:x.rain
+  }));
+}
+const monthLabel = (k, withYear) => { const [y,m]=k.split("-"); return withYear ? `${y.slice(2)}년 ${+m}월` : `${+m}월`; };
+const fmtDay = k => { const [y,m,d]=k.split("-"); return `${y}.${m}.${d}`; };
+
+function renderStats(shown){
+  const pane=$("paneStats");
+  if(!shown.length){ pane.innerHTML=`<div class="empty">${weatherIcon("cloud")}<span>통계를 낼 기록이 없어요.<br>${records.length?"조건을 바꿔 보세요.":"날씨를 기록하면 여기에 월별 통계가 나와요."}</span></div>`; return; }
+  const days=summarizeDays(shown), months=summarizeMonths(days).slice(-12);
+  const hot=days.reduce((a,b)=>b.hi>a.hi?b:a), cold=days.reduce((a,b)=>b.lo<a.lo?b:a);
+  const wetDays=days.filter(d=>d.wet).length, snowDays=days.filter(d=>d.snow).length;
+  const multiYear = new Set(months.map(m=>m.month.slice(0,4))).size>1;
+  pane.innerHTML = `<div class="stats">
+    <div class="tiles">
+      <div class="tile"><span class="k">기록한 날</span><span class="v">${days.length}<small>일</small></span><span class="s">기록 ${shown.length}개</span></div>
+      <div class="tile"><span class="k">비 온 날</span><span class="v">${wetDays}<small>일</small></span><span class="s">${Math.round(wetDays/days.length*100)}%${snowDays?` · 눈 온 날 ${snowDays}일`:""}</span></div>
+      <div class="tile"><span class="k">가장 더웠던 날</span><span class="v" style="color:#d4475a">${Math.round(hot.hi)}<small>°</small></span><span class="s">${fmtDay(hot.day)}</span></div>
+      <div class="tile"><span class="k">가장 추웠던 날</span><span class="v" style="color:#3a7bc8">${Math.round(cold.lo)}<small>°</small></span><span class="s">${fmtDay(cold.day)}</span></div>
+    </div>
+    <div class="panel">
+      <h3>월별 기온</h3>
+      <div class="sub">막대 위는 평균 최고기온, 아래는 평균 최저기온이에요${months.length<shown.length?"":""}</div>
+      <div class="chart" id="tempChart">${tempChartSvg(months, multiYear)}</div>
+    </div>
+    <div class="panel">
+      <h3>월별 비 온 날</h3>
+      <div class="chart" id="rainChart">${rainChartSvg(months, multiYear)}</div>
+    </div>
+    <div class="panel">
+      <h3>월별 표</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>월</th><th>기록한 날</th><th>평균 기온</th><th>평균 최고</th><th>평균 최저</th><th>최고</th><th>최저</th><th>비 온 날</th><th>강수량</th></tr></thead>
+        <tbody>${months.slice().reverse().map(m=>`<tr><td>${monthLabel(m.month,true)}</td><td>${m.days}일</td><td>${r1(m.avgTemp)}°</td><td class="hi">${r1(m.avgHi)}°</td><td class="lo">${r1(m.avgLo)}°</td><td class="hi">${Math.round(m.maxHi)}°</td><td class="lo">${Math.round(m.minLo)}°</td><td>${m.wet}일</td><td>${r1(m.rain)}mm</td></tr>`).join("")}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+  wireTips($("tempChart"), months, m=>`<b>${monthLabel(m.month,true)}</b><br>평균 최고 ${r1(m.avgHi)}° · 평균 최저 ${r1(m.avgLo)}°<br>가장 높을 때 ${Math.round(m.maxHi)}° · 가장 낮을 때 ${Math.round(m.minLo)}°<br>기록한 날 ${m.days}일`);
+  wireTips($("rainChart"), months, m=>`<b>${monthLabel(m.month,true)}</b><br>비 온 날 ${m.wet}일 / 기록한 날 ${m.days}일${m.snow?`<br>눈 온 날 ${m.snow}일`:""}<br>강수량 합계 ${r1(m.rain)}mm`);
+}
+function chartFrame(n, W){ const L=30, R=8, band=(W-L-R)/n; return {L, R, band, x:i=>L+band*i+band/2}; }
+function niceTicks(lo, hi){
+  const span=hi-lo, step = span>40?10 : span>16?5 : span>8?2 : 1;
+  const a=Math.floor(lo/step)*step, b=Math.ceil(hi/step)*step, t=[];
+  for(let v=a; v<=b+1e-9; v+=step) t.push(v);
+  return t;
+}
+function tempChartSvg(months, multiYear){
+  const W=380, H=210, T=22, B=28, n=months.length, f=chartFrame(n,W);
+  const ticks=niceTicks(Math.min(...months.map(m=>m.avgLo))-2, Math.max(...months.map(m=>m.avgHi))+2);
+  const y0=ticks[0], y1=ticks[ticks.length-1], y=v=>T+(H-T-B)*(1-(v-y0)/(y1-y0||1));
+  const bw=Math.min(22, f.band*.5);
+  let g=`<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a8a"/><stop offset="1" stop-color="#7fb3f0"/></linearGradient></defs>`;
+  g+=ticks.map(v=>`<line class="grid" x1="${f.L}" x2="${W-f.R}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${f.L-6}" y="${y(v)+4}" text-anchor="end">${v}°</text>`).join("");
+  months.forEach((m,i)=>{
+    const cx=f.x(i), top=y(m.avgHi), bot=y(m.avgLo), h=Math.max(bot-top,3);
+    g+=`<rect class="band" data-i="${i}" x="${cx-f.band/2}" y="${T-14}" width="${f.band}" height="${H-T-B+14}" rx="10" fill="transparent"/>`;
+    g+=`<rect x="${cx-bw/2}" y="${top}" width="${bw}" height="${h}" rx="${Math.min(8,bw/2)}" fill="url(#tg)"/>`;
+    g+=`<text class="val" x="${cx}" y="${top-6}" text-anchor="middle">${Math.round(m.avgHi)}°</text>`;
+    g+=`<text class="val" x="${cx}" y="${top+h+14}" text-anchor="middle" style="fill:#3a7bc8">${Math.round(m.avgLo)}°</text>`;
+    g+=`<text class="ax" x="${cx}" y="${H-8}" text-anchor="middle">${monthLabel(m.month, multiYear && (i===0 || m.month.endsWith("-01")))}</text>`;
+    g+=`<rect class="hit" data-i="${i}" x="${cx-f.band/2}" y="0" width="${f.band}" height="${H}"/>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 평균 최고·최저기온">${g}</svg>`;
+}
+function rainChartSvg(months, multiYear){
+  const W=380, H=130, T=20, B=26, n=months.length, f=chartFrame(n,W);
+  const max=Math.max(1, ...months.map(m=>m.days));
+  const y=v=>T+(H-T-B)*(1-v/max), bw=Math.min(22, f.band*.5);
+  let g=`<line class="grid" x1="${f.L}" x2="${W-f.R}" y1="${y(0)}" y2="${y(0)}"/>`;
+  months.forEach((m,i)=>{
+    const cx=f.x(i), top=y(m.wet), h=Math.max(y(0)-top, m.wet?3:0);
+    g+=`<rect class="band" data-i="${i}" x="${cx-f.band/2}" y="4" width="${f.band}" height="${H-B}" rx="10" fill="transparent"/>`;
+    if(m.wet) g+=`<path d="M${cx-bw/2} ${y(0)} V${top+4} q0 -4 4 -4 H${cx+bw/2-4} q4 0 4 4 V${y(0)} Z" fill="#6aaef0"/>`;
+    g+=`<text class="val" x="${cx}" y="${top-6}" text-anchor="middle">${m.wet}일</text>`;
+    g+=`<text class="ax" x="${cx}" y="${H-8}" text-anchor="middle">${monthLabel(m.month, multiYear && (i===0 || m.month.endsWith("-01")))}</text>`;
+    g+=`<rect class="hit" data-i="${i}" x="${cx-f.band/2}" y="0" width="${f.band}" height="${H}"/>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 비 온 날 수">${g}</svg>`;
+}
+function wireTips(box, months, html){
+  const svg=box.querySelector("svg"); if(!svg) return;
+  const tip=document.createElement("div"); tip.className="tip"; tip.hidden=true; box.appendChild(tip);
+  const show=e=>{
+    const t=e.target.closest(".hit"); if(!t){ hide(); return; }
+    const i=+t.dataset.i, bandEl=svg.querySelector(`.band[data-i="${i}"]`);
+    svg.querySelectorAll(".band.on").forEach(b=>b.classList.remove("on")); bandEl.classList.add("on");
+    tip.innerHTML=html(months[i]); tip.hidden=false;
+    const br=box.getBoundingClientRect(), rr=t.getBoundingClientRect();
+    let x=rr.left+rr.width/2-br.left; const half=tip.offsetWidth/2;
+    x=Math.max(half, Math.min(br.width-half, x));
+    tip.style.left=x+"px"; tip.style.top="4px";
+  };
+  const hide=()=>{ tip.hidden=true; svg.querySelectorAll(".band.on").forEach(b=>b.classList.remove("on")); };
+  svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
+  svg.addEventListener("pointerleave", hide);
+}
+
+/* ---------- excel ---------- */
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
+async function exportExcel(){
+  const {shown}=filterRecords();
+  if(!shown.length){ setStatus("내보낼 기록이 없어요. 조건을 바꿔 보세요.", true); return; }
+  const btn=$("excelBtn"); btn.disabled=true; btn.textContent="만드는 중…";
+  const p2=n=>String(n).padStart(2,"0");
+  const rows = shown.slice().sort((a,b)=>a.at.localeCompare(b.at)).map(r=>{ const d=new Date(r.at); return {
+    "날짜":dayKey(r), "시간":`${p2(d.getHours())}:${p2(d.getMinutes())}`, "지역":r.place||"", "날씨":r.cond||"",
+    "기온(℃)":r1(r.temp), "체감(℃)":r1(r.feels), "그날 최고(℃)":r1(r.tmax), "그날 최저(℃)":r1(r.tmin),
+    "그날 강수량(mm)":r1(r.psum!=null?r.psum:r.rain), "비 온 날":isWet(r)?"O":"", "습도(%)":r.hum, "바람(m/s)":r1(r.wind),
+    "풍향":r.windDir!=null?dirName(r.windDir):"", "기압(hPa)":r.pres!=null?Math.round(r.pres):null, "구름(%)":r.cloud, "메모":r.memo||""
+  };});
+  const months = summarizeMonths(summarizeDays(shown)).map(m=>({
+    "월":m.month, "기록한 날":m.days, "기록 수":m.recs, "평균 기온(℃)":r1(m.avgTemp), "평균 최고(℃)":r1(m.avgHi), "평균 최저(℃)":r1(m.avgLo),
+    "최고(℃)":r1(m.maxHi), "최저(℃)":r1(m.minLo), "비 온 날":m.wet, "눈 온 날":m.snow, "강수량 합계(mm)":r1(m.rain)
+  }));
+  const fname=`날담-기록-${localDay(new Date())}`;
+  try{
+    if(!window.XLSX) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+    const wb=XLSX.utils.book_new();
+    const ws1=XLSX.utils.json_to_sheet(rows); ws1["!cols"]=Object.keys(rows[0]).map(k=>({wch: k==="메모"?30 : k==="지역"?18 : Math.max(8,k.length*2)}));
+    const ws2=XLSX.utils.json_to_sheet(months); ws2["!cols"]=Object.keys(months[0]).map(k=>({wch:Math.max(9,k.length*2)}));
+    XLSX.utils.book_append_sheet(wb, ws1, "기록");
+    XLSX.utils.book_append_sheet(wb, ws2, "월별 통계");
+    XLSX.writeFile(wb, fname+".xlsx");
+    setStatus(`기록 ${rows.length}개를 엑셀 파일로 저장했어요.`);
+  }catch(e){
+    const head=Object.keys(rows[0]);
+    const csv="﻿"+[head.join(","), ...rows.map(r=>head.map(h=>`"${String(r[h]??"").replace(/"/g,'""')}"`).join(","))].join("\r\n");
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    a.download=fname+".csv"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    setStatus("엑셀 도구를 불러오지 못해 CSV 파일로 저장했어요. 엑셀에서 그대로 열 수 있어요.");
+  }
+  btn.disabled=false; btn.textContent="엑셀로 내보내기";
+}
 
 /* ---------- list ---------- */
 function renderList(){
   updateSaveLabel();
-  const raw=$("q").value.trim(), m=$("d").value, list=$("list");
-  const tq=parseTempQuery(raw), q=tq?tq.rest:raw, tl=q.toLowerCase();
+  const list=$("list");
+  const {shown, tq, q} = filterRecords();
   if(cloudEnabled && !user){
     $("count").textContent="";
     list.innerHTML = fb
@@ -618,14 +917,11 @@ function renderList(){
     const lb=$("loginBtn2"); if(lb) lb.onclick=login;
     return;
   }
-  const shown = records.filter(r=>{
-    if(m){ const d=new Date(r.at); const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; if(ym!==m) return false; }
-    if(tq){ if(!tempHits(r,tq).size) return false; }
-    return !tl || [r.place,r.cond,r.memo].join(" ").toLowerCase().includes(tl);
-  });
+  renderActive(tq);
+  if(activeTab==="stats") renderStats(shown);
   $("count").textContent = records.length ? (shown.length===records.length ? `${records.length}개` : `${shown.length} / ${records.length}개`) : "";
   if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘이 날씨 기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
-  if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>찾는 기록이 없어요. 다른 말로 검색해 볼까요?</span></div>`; return; }
+  if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>조건에 맞는 기록이 없어요.<br>검색어나 조건을 바꿔 볼까요?</span></div>`; return; }
   const hits = r => tq ? tempHits(r,tq) : new Set();
   list.innerHTML = shown.map(r=>`
     <div class="entry">
@@ -633,7 +929,7 @@ function renderList(){
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
         ${(r.tmax!=null&&r.tmin!=null)?`<div class="chips"><span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span></div>`:""}
-        <div class="meta">${fmtDate(r.at)} · 습도 ${r.hum}% · ${dirName(r.windDir)} ${Number(r.wind).toFixed(1)}m/s</div>
+        <div class="meta">${fmtDate(r.at)}${(r.psum??r.rain)>0?` · 강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:""} · 습도 ${r.hum}% · ${dirName(r.windDir)} ${Number(r.wind).toFixed(1)}m/s</div>
         ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
       </div>
       <div class="side">
@@ -680,7 +976,23 @@ $("locBtn").onclick=locate;
 $("cityBtn").onclick=searchCity;
 $("cityInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); searchCity(); } });
 $("q").addEventListener("input", renderList);
-$("d").addEventListener("change", renderList);
+["from","to","placeSel"].forEach(id=>$(id).addEventListener("change", renderList));
+$("advBtn").onclick=()=>{ const open=$("adv").hidden; $("adv").hidden=!open; $("advBtn").setAttribute("aria-expanded", String(open)); if(open) fillPlaces(); };
+$("kinds").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed")!=="true")); renderList(); });
+$("quick").addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  const now=new Date(), iso=d=>localDay(d);
+  let from;
+  if(b.dataset.q==="month") from=new Date(now.getFullYear(), now.getMonth(), 1);
+  else if(b.dataset.q==="year") from=new Date(now.getFullYear(), 0, 1);
+  else { from=new Date(now); from.setDate(now.getDate()-Number(b.dataset.q)+1); }
+  $("from").value=iso(from); $("to").value=iso(now); renderList();
+});
+$("advReset").onclick=()=>{ $("from").value=""; $("to").value=""; $("placeSel").value=""; $("q").value="";
+  $("kinds").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false")); renderList(); };
+$("tabDiary").onclick=()=>setTab("diary");
+$("tabStats").onclick=()=>setTab("stats");
+$("excelBtn").onclick=exportExcel;
 
 if(!cloudEnabled) records = loadLocal();
 renderAccount();

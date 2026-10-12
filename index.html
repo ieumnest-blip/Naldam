@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>날담</title>
+<meta name="description" content="날담(Naldam) · 날씨를 담다 · 지금 있는 곳의 날씨를 기록하는 날씨 일기장">
+<meta name="theme-color" content="#e6f2ff">
+<meta name="apple-mobile-web-app-title" content="날담">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Sunflower:wght@500;700&display=swap">
+<style>
+/* Layout: one soft column like a sticker diary — a big weather "sticker" card on top, little diary entries below */
+:root{
+  --bg:#eaf3ff; --bg2:#fdf0f6; --surface:#ffffff; --fg:#3a3552; --muted:#8a86a3; --line:#e6e4f2;
+  --accent:#ff7fa3; --accent-deep:#e85d86; --accent-fg:#ffffff; --sun:#ffd36b; --sunray:#ffb938;
+  --rain:#6aaef0; --snow:#a9b6ff; --mint:#7fd3bd; --danger:#e85d6c; --field:#f6f5fc; --mark:#ffe08a;
+  --shadow:0 6px 0 rgba(120,110,170,.10), 0 14px 30px -12px rgba(120,110,170,.30);
+  --sky-sun:linear-gradient(160deg,#fff4c9 0%,#ffe0ea 100%);
+  --sky-part:linear-gradient(160deg,#e3f1ff 0%,#fff1d6 100%);
+  --sky-cloud:linear-gradient(160deg,#eef1f8 0%,#e3e8f5 100%);
+  --sky-rain:linear-gradient(160deg,#dcecff 0%,#e7e3ff 100%);
+  --sky-snow:linear-gradient(160deg,#f1f0ff 0%,#e3f3ff 100%);
+  --sky-storm:linear-gradient(160deg,#e4e2f3 0%,#fff0c9 100%);
+  --sky-fog:linear-gradient(160deg,#f2f1f6 0%,#e8eef3 100%);
+  --cloud:#ffffff; --cloud-dark:#d9def0;
+  --font-display:"Jua","Sunflower","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --font-body:"Sunflower","Jua","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1c1a2e; --bg2:#2a1f33; --surface:#272540; --fg:#f1eefc; --muted:#a6a1c4; --line:#38355a;
+  --accent:#ff8fb0; --accent-deep:#ffa6c0; --accent-fg:#2a1424; --field:#1f1d35; --mark:#7a5f1c;
+  --shadow:0 6px 0 rgba(0,0,0,.25), 0 14px 30px -12px rgba(0,0,0,.6);
+  --sky-sun:linear-gradient(160deg,#4a3d2a 0%,#4a2d3c 100%);
+  --sky-part:linear-gradient(160deg,#2c3a55 0%,#4a3d2a 100%);
+  --sky-cloud:linear-gradient(160deg,#33354d 0%,#2c2f45 100%);
+  --sky-rain:linear-gradient(160deg,#25365a 0%,#33305a 100%);
+  --sky-snow:linear-gradient(160deg,#35345e 0%,#283c58 100%);
+  --sky-storm:linear-gradient(160deg,#2d2b45 0%,#4a3f22 100%);
+  --sky-fog:linear-gradient(160deg,#34334a 0%,#2c3640 100%);
+  --cloud:#f3f4ff; --cloud-dark:#b9bfdc; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#1c1a2e; --bg2:#2a1f33; --surface:#272540; --fg:#f1eefc; --muted:#a6a1c4; --line:#38355a;
+  --accent:#ff8fb0; --accent-deep:#ffa6c0; --accent-fg:#2a1424; --field:#1f1d35; --mark:#7a5f1c;
+  --shadow:0 6px 0 rgba(0,0,0,.25), 0 14px 30px -12px rgba(0,0,0,.6);
+  --sky-sun:linear-gradient(160deg,#4a3d2a 0%,#4a2d3c 100%);
+  --sky-part:linear-gradient(160deg,#2c3a55 0%,#4a3d2a 100%);
+  --sky-cloud:linear-gradient(160deg,#33354d 0%,#2c2f45 100%);
+  --sky-rain:linear-gradient(160deg,#25365a 0%,#33305a 100%);
+  --sky-snow:linear-gradient(160deg,#35345e 0%,#283c58 100%);
+  --sky-storm:linear-gradient(160deg,#2d2b45 0%,#4a3f22 100%);
+  --sky-fog:linear-gradient(160deg,#34334a 0%,#2c3640 100%);
+  --cloud:#f3f4ff; --cloud-dark:#b9bfdc; color-scheme:dark;}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);background-image:radial-gradient(circle at 15% 0%,var(--bg2) 0,transparent 45%),radial-gradient(circle at 100% 30%,var(--bg2) 0,transparent 35%);
+  background-attachment:fixed;color:var(--fg);font:16px/1.6 var(--font-body);
+  padding:env(safe-area-inset-top,0px) 16px calc(env(safe-area-inset-bottom,0px) + 36px)}
+.wrap{max-width:540px;margin:0 auto;display:flex;flex-direction:column;gap:22px;padding-block:22px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:52px;height:52px;flex:none;filter:drop-shadow(0 3px 0 rgba(56,121,184,.15))}
+.brand .logo svg{width:100%;height:100%;display:block}
+header h1{font-family:var(--font-display);font-weight:400;font-size:32px;line-height:1.1;margin:0;letter-spacing:-.01em}
+header h1 span{color:var(--accent-deep)}
+header h1 em{font-style:normal;font-family:var(--font-display);font-size:14px;letter-spacing:.06em;color:#3879b8;background:#e6f2ff;border-radius:99px;padding:3px 10px 2px;margin-left:10px;vertical-align:middle;position:relative;top:-3px}
+header p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.account{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:var(--surface);border:2px dashed var(--line);border-radius:18px;padding:10px 12px 10px 14px;font-size:13.5px}
+.account .who{min-width:0;overflow-wrap:anywhere}
+.account .who b{font-family:var(--font-display);font-weight:400;font-size:15px}
+.account button{padding:8px 14px;font-size:13.5px}
+.gbtn{display:inline-flex;align-items:center;gap:8px}
+.gbtn svg{width:16px;height:16px;flex:none}
+
+/* weather sticker card */
+.card{background:var(--sky-part);border-radius:28px;padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:background .4s}
+.card.k-sun{background:var(--sky-sun)} .card.k-part{background:var(--sky-part)} .card.k-cloud{background:var(--sky-cloud)}
+.card.k-rain{background:var(--sky-rain)} .card.k-snow{background:var(--sky-snow)} .card.k-storm{background:var(--sky-storm)} .card.k-fog{background:var(--sky-fog)}
+.now{display:flex;flex-direction:column;gap:14px}
+.place{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.place strong{font-family:var(--font-display);font-weight:400;font-size:18px;display:inline-flex;align-items:center;gap:6px}
+.place strong::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+.place span{font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--surface) 70%,transparent);padding:3px 10px;border-radius:99px}
+.hero{display:flex;align-items:center;gap:6px}
+.wicon{width:118px;height:118px;flex:none}
+.wicon svg{width:100%;height:100%;display:block}
+.hero-text{display:flex;flex-direction:column;min-width:0}
+.temp{font-family:var(--font-display);font-size:64px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.temp small{font-size:28px;color:var(--muted);margin-left:2px}
+.cond{font-family:var(--font-display);font-size:19px;margin-top:4px}
+.chat{font-size:13.5px;color:var(--muted);margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid div{display:flex;flex-direction:column;align-items:center;min-width:0;text-align:center;
+  background:color-mix(in srgb,var(--surface) 72%,transparent);border-radius:16px;padding:8px 4px}
+.grid .label{font-size:11.5px;color:var(--muted)}
+.grid b{font-family:var(--font-display);font-weight:400;font-size:16px;font-variant-numeric:tabular-nums;line-height:1.25}
+.grid b small{display:block;font-size:12px;color:var(--muted)}
+.status{font-size:14px;color:var(--muted);background:color-mix(in srgb,var(--surface) 70%,transparent);border-radius:14px;padding:10px 12px}
+.status.err{color:var(--danger)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row > input{flex:1 1 160px;min-width:0}
+input,textarea{font:inherit;color:var(--fg);background:var(--field);border:2px solid var(--line);border-radius:16px;padding:10px 14px;width:100%}
+.card textarea,.card input{background:color-mix(in srgb,var(--surface) 85%,transparent);border-color:transparent}
+textarea{resize:vertical;min-height:46px}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}
+button{font-family:var(--font-display);font-size:15px;font-weight:400;border-radius:99px;padding:10px 18px;border:2px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;
+  transition:transform .12s, box-shadow .12s}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(1px)}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);box-shadow:0 4px 0 var(--accent-deep)}
+button.primary:active{box-shadow:0 1px 0 var(--accent-deep)}
+button:disabled{opacity:.55;cursor:default;transform:none}
+.results{display:flex;flex-direction:column;gap:6px}
+.results:not(:empty){margin-top:8px}
+.results button{text-align:left;font-family:var(--font-body);font-size:14px;border-radius:14px}
+
+/* diary */
+section{display:flex;flex-direction:column;gap:12px}
+.sechead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sechead h2{font-family:var(--font-display);font-weight:400;font-size:21px;margin:0}
+.filters{display:grid;grid-template-columns:1fr 160px;gap:8px}
+@media (max-width:420px){.filters{grid-template-columns:1fr}}
+.list{display:flex;flex-direction:column;gap:10px}
+.entry{display:grid;grid-template-columns:56px 1fr auto;gap:2px 12px;padding:12px 14px;background:var(--surface);border-radius:22px;box-shadow:var(--shadow);align-items:center}
+.entry .ic{width:56px;height:56px;border-radius:18px;background:var(--sky-part);display:grid;place-items:center}
+.entry .ic.k-sun{background:var(--sky-sun)} .entry .ic.k-cloud{background:var(--sky-cloud)} .entry .ic.k-rain{background:var(--sky-rain)}
+.entry .ic.k-snow{background:var(--sky-snow)} .entry .ic.k-storm{background:var(--sky-storm)} .entry .ic.k-fog{background:var(--sky-fog)}
+.entry .ic svg{width:46px;height:46px}
+.entry .body{min-width:0}
+.entry .title{font-family:var(--font-display);font-size:16px;overflow-wrap:anywhere}
+.entry .meta{font-size:12px;color:var(--muted)}
+.entry .memo{margin-top:6px;font-size:14px;overflow-wrap:anywhere;background:var(--field);border-radius:4px 14px 14px 14px;padding:6px 10px;display:inline-block}
+.entry .side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;align-self:start}
+.entry .t{font-family:var(--font-display);font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.entry .del{padding:2px 10px;font-size:12px;color:var(--muted);background:transparent;border-color:transparent}
+.entry .del.confirm{color:var(--danger);border-color:var(--danger)}
+mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
+.empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:14px;background:var(--surface);border:2px dashed var(--line);border-radius:22px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.empty svg{width:72px;height:72px}
+.empty button{margin-top:8px}
+.migrate{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13.5px;
+  background:var(--surface);border:2px dashed var(--accent);border-radius:18px;padding:10px 14px}
+.foot{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.foot button{font-size:13.5px;padding:8px 14px;background:transparent}
+.count{font-size:13px;color:var(--accent-deep);background:var(--surface);border-radius:99px;padding:2px 10px}
+.count:empty{display:none}
+
+/* gentle motion */
+@media (prefers-reduced-motion:no-preference){
+  .wicon svg{animation:bob 3.2s ease-in-out infinite}
+  .rays{transform-origin:32px 32px;animation:spin 18s linear infinite}
+  .drop{animation:fall 1.4s ease-in infinite}
+  .drop:nth-of-type(2){animation-delay:.45s} .drop:nth-of-type(3){animation-delay:.9s}
+  @keyframes bob{50%{transform:translateY(-4px)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes fall{0%{transform:translateY(-3px);opacity:0}30%{opacity:1}100%{transform:translateY(5px);opacity:0}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#e6f2ff"/><g transform="translate(96 96) scale(13.333)" fill="none" stroke="#3879b8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></g></svg></span>
+      <div>
+        <h1><span>날</span>담<em lang="en">Naldam</em></h1>
+        <p>날씨를 담다 · 오늘 하늘을 콕 기록하고, 지난 날씨를 찾아봐요.</p>
+      </div>
+    </div>
+    <div class="account" id="account"><span class="who">계정 확인 중…</span></div>
+  </header>
+
+  <div class="card now" id="nowCard">
+    <div class="status" id="status">현재 위치를 확인하는 중…</div>
+    <div id="nowBody" hidden>
+      <div class="now">
+        <div class="place"><strong id="placeName"></strong><span id="obsTime"></span></div>
+        <div class="hero">
+          <div class="wicon" id="wicon"></div>
+          <div class="hero-text">
+            <div class="temp" id="temp"></div>
+            <div class="cond" id="cond"></div>
+            <div class="chat" id="chat"></div>
+          </div>
+        </div>
+        <div class="grid">
+          <div><span class="label">체감</span><b id="feels"></b></div>
+          <div><span class="label">습도</span><b id="hum"></b></div>
+          <div><span class="label">강수</span><b id="rain"></b></div>
+          <div><span class="label">바람</span><b id="wind"></b></div>
+          <div><span class="label">기압</span><b id="pres"></b></div>
+          <div><span class="label">구름</span><b id="cloud"></b></div>
+        </div>
+        <textarea id="memo" placeholder="오늘 날씨 한 줄 메모 (예: 아침엔 쌀쌀, 우산 챙김)" rows="2"></textarea>
+        <div class="row">
+          <button class="primary" id="saveBtn" type="button">이 날씨 기록하기</button>
+          <button id="refreshBtn" type="button">새로고침</button>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <input id="cityInput" type="search" placeholder="다른 지역 검색 (예: 부산, 제주)" autocomplete="off">
+      <button id="cityBtn" type="button">찾기</button>
+      <button id="locBtn" type="button">내 위치</button>
+    </div>
+    <div class="results" id="cityResults"></div>
+  </div>
+
+  <section>
+    <div class="sechead"><h2>날씨 일기장</h2><span class="count" id="count"></span></div>
+    <div class="migrate" id="migrate" hidden>
+      <span id="migrateText"></span>
+      <button id="migrateBtn" type="button">내 계정으로 옮기기</button>
+    </div>
+    <div class="filters">
+      <input id="q" type="search" placeholder="지역, 날씨, 메모로 검색" autocomplete="off">
+      <input id="d" type="month" aria-label="월 선택">
+    </div>
+    <div class="list" id="list"></div>
+    <div class="foot">
+      <button id="exportBtn" type="button">백업 파일 저장</button>
+      <button id="importBtn" type="button">백업 불러오기</button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+    </div>
+  </section>
+</div>
+
+<!--
+  ▼ Firebase 설정: Firebase 콘솔 > 프로젝트 설정 > 내 앱(웹)에 나오는 firebaseConfig 값을 아래에 붙여 넣으세요.
+    비워 두면 로그인 없이 이 기기에만 저장하는 모드로 동작합니다.
+
+  ▼ Firestore 보안 규칙 (Firestore Database > 규칙 탭에 붙여 넣기)
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /users/{uid}/records/{recordId} {
+          allow read, write: if request.auth != null && request.auth.uid == uid;
+        }
+      }
+    }
+-->
+<script type="module">
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+
+const FB = "https://www.gstatic.com/firebasejs/10.12.2/";
+const LOCAL_KEY = "weather-log-v1";
+const WMO = {0:"맑음",1:"대체로 맑음",2:"구름 조금",3:"흐림",45:"안개",48:"서리 안개",51:"약한 이슬비",53:"이슬비",55:"강한 이슬비",56:"어는 이슬비",57:"어는 이슬비",61:"약한 비",63:"비",65:"강한 비",66:"어는 비",67:"강한 어는 비",71:"약한 눈",73:"눈",75:"많은 눈",77:"싸락눈",80:"약한 소나기",81:"소나기",82:"강한 소나기",85:"소낙눈",86:"강한 소낙눈",95:"뇌우",96:"우박 동반 뇌우",99:"강한 우박 뇌우"};
+const DIR = ["북","북북동","북동","동북동","동","동남동","남동","남남동","남","남남서","남서","서남서","서","서북서","북서","북북서"];
+const G_ICON = `<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>`;
+
+/* ---------- cute weather icons ---------- */
+function kindOf(code){
+  if(code<=1) return "sun";
+  if(code===2) return "part";
+  if(code===3) return "cloud";
+  if(code===45||code===48) return "fog";
+  if(code>=95) return "storm";
+  if((code>=71&&code<=77)||code===85||code===86) return "snow";
+  return "rain";
+}
+const face = (x,y,s=1) => `<g transform="translate(${x} ${y}) scale(${s})">
+  <circle cx="-5" cy="0" r="1.9" fill="#3a3552"/><circle cx="5" cy="0" r="1.9" fill="#3a3552"/>
+  <path d="M-3 3.6q3 3 6 0" fill="none" stroke="#3a3552" stroke-width="1.6" stroke-linecap="round"/>
+  <ellipse cx="-8.5" cy="3.5" rx="2.6" ry="1.6" fill="#ff8fab" opacity=".55"/><ellipse cx="8.5" cy="3.5" rx="2.6" ry="1.6" fill="#ff8fab" opacity=".55"/></g>`;
+const sunSvg = (cx,cy,r) => {
+  let rays=""; for(let i=0;i<8;i++){ const a=i*Math.PI/4, r1=r+4, r2=r+9;
+    rays+=`<line x1="${(cx+Math.cos(a)*r1).toFixed(1)}" y1="${(cy+Math.sin(a)*r1).toFixed(1)}" x2="${(cx+Math.cos(a)*r2).toFixed(1)}" y2="${(cy+Math.sin(a)*r2).toFixed(1)}"/>`; }
+  return `<g class="rays" style="transform-origin:${cx}px ${cy}px" stroke="#ffb938" stroke-width="3.6" stroke-linecap="round">${rays}</g><circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffd36b"/>`;
+};
+const cloudSvg = (dx,dy,fill="var(--cloud)") => `<g transform="translate(${dx} ${dy})" fill="${fill}">
+  <circle cx="22" cy="36" r="10"/><circle cx="34" cy="29" r="13"/><circle cx="46" cy="37" r="9"/><rect x="12" y="34" width="44" height="13" rx="6.5"/></g>`;
+function weatherIcon(kind){
+  let g="";
+  if(kind==="sun") g = sunSvg(32,32,15) + face(32,33);
+  else if(kind==="part") g = sunSvg(22,22,11) + cloudSvg(4,6) + face(38,44,.9);
+  else if(kind==="cloud") g = cloudSvg(-2,0) + face(32,38);
+  else if(kind==="fog") g = cloudSvg(-2,-4) + face(32,34) + `<g stroke="var(--cloud-dark)" stroke-width="3" stroke-linecap="round"><line x1="12" y1="51" x2="46" y2="51"/><line x1="20" y1="57" x2="54" y2="57"/></g>`;
+  else if(kind==="rain") g = cloudSvg(-2,-6) + face(32,32) + `<g fill="#6aaef0"><path class="drop" d="M20 48q-3 5 0 7q3-2 0-7z"/><path class="drop" d="M32 50q-3 5 0 7q3-2 0-7z"/><path class="drop" d="M44 48q-3 5 0 7q3-2 0-7z"/></g>`;
+  else if(kind==="snow") g = cloudSvg(-2,-6) + face(32,32) + `<g fill="#a9b6ff"><circle class="drop" cx="20" cy="52" r="3"/><circle class="drop" cx="32" cy="55" r="3"/><circle class="drop" cx="44" cy="52" r="3"/></g>`;
+  else g = cloudSvg(-2,-6,"var(--cloud-dark)") + face(32,32) + `<path d="M34 44l-7 10h6l-3 8 10-12h-6l3-6z" fill="#ffc93c" stroke="#f0a020" stroke-width="1" stroke-linejoin="round"/>`;
+  return `<svg viewBox="0 0 64 64" aria-hidden="true">${g}</svg>`;
+}
+function chatLine(c){
+  const k=kindOf(c.code);
+  if(k==="rain"||k==="storm") return "우산 꼭 챙겨요 ☂";
+  if(k==="snow") return "따뜻하게 입고 나가요";
+  if(c.feels<=5) return "많이 추워요, 목도리 챙겨요";
+  if(c.feels>=30) return "더워요! 물 자주 마셔요";
+  if(k==="sun") return "산책하기 좋은 날이에요";
+  if(k==="fog") return "앞이 흐려요, 조심조심";
+  return "오늘 하루도 화이팅";
+}
+
+const $ = id => document.getElementById(id);
+const cloudEnabled = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+let current = null;
+let records = [];
+let fb = null;          // loaded Firebase modules + instances
+let user = null;        // signed-in Google user
+let unsub = null;       // Firestore listener
+
+/* ---------- local (this device) storage ---------- */
+function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LOCAL_KEY)) || []; }catch(e){ return []; } }
+function saveLocal(arr){ try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); return true; }catch(e){ return false; } }
+
+/* ---------- helpers ---------- */
+function setStatus(msg, err){ const s=$("status"); s.textContent=msg; s.classList.toggle("err",!!err); s.hidden=!msg; }
+function dirName(deg){ return DIR[Math.round((deg%360)/22.5)%16]; }
+function fmtDate(iso){
+  const d=new Date(iso), p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
+function hl(text, q){
+  const t=esc(text); if(!q) return t;
+  const re=new RegExp(esc(q).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi");
+  return t.replace(re, m=>`<mark>${m}</mark>`);
+}
+const inAppBrowser = /KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER\(inapp|everytimeApp/i.test(navigator.userAgent);
+
+/* ---------- account bar ---------- */
+function renderAccount(){
+  const box=$("account");
+  if(!cloudEnabled){
+    box.innerHTML=`<span class="who">로그인 설정 전이라 기록이 이 기기에만 저장돼요.</span>`;
+    return;
+  }
+  if(!fb){ box.innerHTML=`<span class="who">계정 확인 중…</span>`; return; }
+  if(user){
+    box.innerHTML=`<span class="who"><b>${esc(user.displayName||"내 계정")}</b> · ${esc(user.email||"")}</span><button type="button" id="logoutBtn">로그아웃</button>`;
+    $("logoutBtn").onclick=()=>fb.auth.signOut(fb.authInst);
+  }else{
+    box.innerHTML=`<span class="who">로그인하면 기록이 구글 계정에 저장돼 어느 기기에서나 볼 수 있어요.</span><button type="button" class="gbtn" id="loginBtn">${G_ICON}Google로 로그인</button>`;
+    $("loginBtn").onclick=login;
+  }
+}
+
+/* ---------- Firebase ---------- */
+async function initCloud(){
+  try{
+    const [appM, authM, fsM] = await Promise.all([
+      import(FB+"firebase-app.js"), import(FB+"firebase-auth.js"), import(FB+"firebase-firestore.js")
+    ]);
+    const app = appM.initializeApp(FIREBASE_CONFIG);
+    fb = { auth:authM, fs:fsM, authInst:authM.getAuth(app), db:fsM.getFirestore(app) };
+    fb.authInst.languageCode = "ko";
+    authM.getRedirectResult(fb.authInst).catch(handleAuthError);
+    authM.onAuthStateChanged(fb.authInst, u=>{
+      user = u; renderAccount();
+      if(unsub){ unsub(); unsub=null; }
+      if(u){ listen(u.uid); } else { records=[]; renderList(); }
+      renderMigrate();
+    });
+  }catch(e){
+    fb=null;
+    $("account").innerHTML=`<span class="who">로그인 기능을 불러오지 못했어요. 인터넷 연결을 확인하고 페이지를 새로고침해 주세요.</span>`;
+  }
+}
+function recCol(uid){ return fb.fs.collection(fb.db, "users", uid, "records"); }
+function listen(uid){
+  const q = fb.fs.query(recCol(uid), fb.fs.orderBy("at","desc"));
+  unsub = fb.fs.onSnapshot(q, snap=>{
+    records = snap.docs.map(d=>d.data());
+    renderList();
+  }, err=>{
+    setStatus("계정의 기록을 불러오지 못했어요. Firestore 보안 규칙이 설정돼 있는지 확인해 주세요.", true);
+  });
+}
+async function login(){
+  if(inAppBrowser){
+    setStatus("카카오톡·인스타그램 같은 앱 안의 브라우저에서는 구글 로그인이 막혀 있어요. 크롬이나 사파리로 열어 주세요.", true);
+    return;
+  }
+  const provider = new fb.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:"select_account"});
+  try{ await fb.auth.signInWithPopup(fb.authInst, provider); }
+  catch(e){
+    if(e.code==="auth/popup-blocked" || e.code==="auth/operation-not-supported-in-this-environment"){
+      await fb.auth.signInWithRedirect(fb.authInst, provider);
+    }else handleAuthError(e);
+  }
+}
+function handleAuthError(e){
+  if(!e || !e.code) return;
+  if(e.code==="auth/popup-closed-by-user" || e.code==="auth/cancelled-popup-request") return;
+  if(e.code==="auth/unauthorized-domain")
+    setStatus(`이 주소(${location.hostname})가 로그인 허용 목록에 없어요. Firebase 콘솔 > Authentication > 설정 > 승인된 도메인에 추가해 주세요.`, true);
+  else if(e.code==="auth/operation-not-allowed")
+    setStatus("Firebase에서 Google 로그인이 아직 꺼져 있어요. Authentication > 로그인 방법에서 Google을 사용 설정해 주세요.", true);
+  else setStatus("로그인하지 못했어요. 잠시 후 다시 시도해 주세요.", true);
+}
+
+/* ---------- record operations (cloud or local) ---------- */
+async function addRecord(rec){
+  if(cloudEnabled){
+    await fb.fs.setDoc(fb.fs.doc(fb.db,"users",user.uid,"records",rec.id), rec);
+  }else{
+    records.unshift(rec);
+    if(!saveLocal(records)) setStatus("이 브라우저에서는 저장이 막혀 있어요. 백업 파일로 보관해 주세요.", true);
+    renderList();
+  }
+}
+async function removeRecord(id){
+  if(cloudEnabled){ await fb.fs.deleteDoc(fb.fs.doc(fb.db,"users",user.uid,"records",id)); }
+  else{ records=records.filter(r=>r.id!==id); saveLocal(records); renderList(); }
+}
+async function addMany(arr){
+  const ids=new Set(records.map(r=>r.id));
+  const fresh=arr.filter(r=>r && r.id && r.at && !ids.has(r.id));
+  if(cloudEnabled){
+    for(let i=0;i<fresh.length;i+=400){
+      const b=fb.fs.writeBatch(fb.db);
+      fresh.slice(i,i+400).forEach(r=>b.set(fb.fs.doc(fb.db,"users",user.uid,"records",r.id), r));
+      await b.commit();
+    }
+  }else{
+    records=records.concat(fresh).sort((a,b)=>b.at.localeCompare(a.at));
+    saveLocal(records); renderList();
+  }
+  return fresh.length;
+}
+
+/* ---------- move this device's old records into the account ---------- */
+function renderMigrate(){
+  const local = loadLocal();
+  const show = cloudEnabled && user && local.length>0;
+  $("migrate").hidden = !show;
+  if(show) $("migrateText").textContent = `이 기기에만 저장된 기록이 ${local.length}개 있어요.`;
+}
+$("migrateBtn").onclick = async ()=>{
+  const b=$("migrateBtn"); b.disabled=true; b.textContent="옮기는 중…";
+  try{
+    await addMany(loadLocal());
+    try{ localStorage.removeItem(LOCAL_KEY); }catch(e){}
+    renderMigrate();
+  }catch(e){ setStatus("기록을 옮기지 못했어요. 잠시 후 다시 시도해 주세요.", true); }
+  b.disabled=false; b.textContent="내 계정으로 옮기기";
+};
+
+/* ---------- weather ---------- */
+async function placeName(lat, lon){
+  try{
+    const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=ko`);
+    const j = await r.json();
+    const parts = [j.principalSubdivision, j.city || j.locality].filter(Boolean);
+    const uniq = parts.filter((v,i)=>parts.indexOf(v)===i);
+    if(uniq.length) return uniq.join(" ");
+  }catch(e){}
+  return `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+}
+async function fetchWeather(lat, lon, name){
+  setStatus("날씨를 불러오는 중…");
+  try{
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
+      `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m`+
+      `&wind_speed_unit=ms&timezone=auto`;
+    const [wr, nm] = await Promise.all([
+      fetch(url).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }),
+      name ? Promise.resolve(name) : placeName(lat, lon)
+    ]);
+    const c = wr.current;
+    current = {
+      place:nm, lat:+lat.toFixed(4), lon:+lon.toFixed(4),
+      temp:c.temperature_2m, feels:c.apparent_temperature, hum:c.relative_humidity_2m,
+      rain:c.precipitation, code:c.weather_code, cond:WMO[c.weather_code] || "알 수 없음",
+      cloud:c.cloud_cover, pres:c.pressure_msl, wind:c.wind_speed_10m, windDir:c.wind_direction_10m
+    };
+    renderNow(); setStatus("");
+  }catch(e){
+    setStatus("날씨를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침을 눌러 주세요.", true);
+  }
+}
+function renderNow(){
+  const c=current; $("nowBody").hidden=false;
+  $("placeName").textContent=c.place;
+  $("obsTime").textContent=fmtDate(new Date().toISOString());
+  $("temp").innerHTML=`${Math.round(c.temp*10)/10}<small>℃</small>`;
+  $("cond").textContent=c.cond;
+  const k=kindOf(c.code);
+  $("wicon").innerHTML=weatherIcon(k);
+  $("chat").textContent=chatLine(c);
+  $("nowCard").className="card now k-"+k;
+  $("feels").textContent=`${Math.round(c.feels)}℃`;
+  $("hum").textContent=`${c.hum}%`;
+  $("rain").textContent=`${c.rain} mm`;
+  $("wind").innerHTML=`${c.wind.toFixed(1)} m/s<small>${dirName(c.windDir)}풍</small>`;
+  $("pres").textContent=`${Math.round(c.pres)} hPa`;
+  $("cloud").textContent=`${c.cloud}%`;
+}
+function locate(){
+  if(!("geolocation" in navigator)){ setStatus("이 브라우저는 위치 기능을 지원하지 않아요. 아래에서 지역을 검색해 주세요.", true); return; }
+  setStatus("현재 위치를 확인하는 중…");
+  navigator.geolocation.getCurrentPosition(
+    p => fetchWeather(p.coords.latitude, p.coords.longitude),
+    err => setStatus(err.code===1
+      ? "위치 권한이 꺼져 있어요. 브라우저 설정에서 위치를 허용하거나, 아래에서 지역을 검색해 주세요."
+      : "위치를 찾지 못했어요. 잠시 후 '내 위치'를 다시 누르거나 지역을 검색해 주세요.", true),
+    {enableHighAccuracy:false, timeout:12000, maximumAge:300000}
+  );
+}
+async function searchCity(){
+  const q=$("cityInput").value.trim(); const box=$("cityResults"); box.innerHTML="";
+  if(!q) return;
+  try{
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=ko`);
+    const j = await r.json();
+    if(!j.results || !j.results.length){ box.textContent="검색 결과가 없어요. 다른 이름으로 찾아보세요."; return; }
+    j.results.forEach(p=>{
+      const b=document.createElement("button"); b.type="button";
+      b.textContent=[p.name, p.admin1, p.country].filter(Boolean).join(", ");
+      b.onclick=()=>{ box.innerHTML=""; $("cityInput").value=""; fetchWeather(p.latitude, p.longitude, [p.admin1,p.name].filter(Boolean).join(" ")); };
+      box.appendChild(b);
+    });
+  }catch(e){ box.textContent="지역을 검색하지 못했어요. 인터넷 연결을 확인해 주세요."; }
+}
+
+/* ---------- save ---------- */
+async function saveRecord(){
+  if(!current) return;
+  if(cloudEnabled && !user){ if(fb) login(); return; }
+  const rec = {...current, id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), at:new Date().toISOString(), memo:$("memo").value.trim()};
+  const b=$("saveBtn"); b.disabled=true;
+  try{
+    await addRecord(rec);
+    $("memo").value=""; b.textContent="기록했어요";
+  }catch(e){
+    setStatus("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); b.textContent="이 날씨 기록하기";
+  }
+  setTimeout(()=>{ updateSaveLabel(); b.disabled=false; }, 1500);
+}
+function updateSaveLabel(){
+  $("saveBtn").textContent = (cloudEnabled && !user) ? "로그인하고 기록하기" : "이 날씨 기록하기";
+}
+
+/* ---------- list ---------- */
+function renderList(){
+  updateSaveLabel();
+  const q=$("q").value.trim(), m=$("d").value, list=$("list"), ql=q.toLowerCase();
+  if(cloudEnabled && !user){
+    $("count").textContent="";
+    list.innerHTML = fb
+      ? `<div class="empty">${weatherIcon("part")}로그인하면 내 구글 계정에 저장된 일기가 여기에 나타나요.<button type="button" class="gbtn" id="loginBtn2">${G_ICON}Google로 로그인</button></div>`
+      : `<div class="empty">기록을 불러오는 중…</div>`;
+    const lb=$("loginBtn2"); if(lb) lb.onclick=login;
+    return;
+  }
+  const shown = records.filter(r=>{
+    if(m){ const d=new Date(r.at); const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; if(ym!==m) return false; }
+    return !ql || [r.place,r.cond,r.memo].join(" ").toLowerCase().includes(ql);
+  });
+  $("count").textContent = records.length ? (shown.length===records.length ? `${records.length}개` : `${shown.length} / ${records.length}개`) : "";
+  if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘이 날씨 기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
+  if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>찾는 기록이 없어요. 다른 말로 검색해 볼까요?</span></div>`; return; }
+  list.innerHTML = shown.map(r=>`
+    <div class="entry">
+      <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
+      <div class="body">
+        <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
+        <div class="meta">${fmtDate(r.at)} · 습도 ${r.hum}% · ${dirName(r.windDir)} ${Number(r.wind).toFixed(1)}m/s</div>
+        ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
+      </div>
+      <div class="side">
+        <div class="t">${Math.round(r.temp)}°</div>
+        <button class="del" type="button" data-id="${esc(r.id)}">삭제</button>
+      </div>
+    </div>`).join("");
+}
+$("list").addEventListener("click", async e=>{
+  const b=e.target.closest(".del"); if(!b) return;
+  if(!b.classList.contains("confirm")){
+    b.classList.add("confirm"); b.textContent="정말 삭제";
+    setTimeout(()=>{ if(b.isConnected){ b.classList.remove("confirm"); b.textContent="삭제"; } },3000);
+    return;
+  }
+  try{ await removeRecord(b.dataset.id); }catch(err){ setStatus("삭제하지 못했어요. 잠시 후 다시 시도해 주세요.", true); }
+});
+
+/* ---------- backup ---------- */
+$("exportBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(records,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`날담-백업-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+$("importBtn").onclick=()=>{
+  if(cloudEnabled && !user){ setStatus("백업을 불러오려면 먼저 로그인해 주세요.", true); return; }
+  $("importFile").click();
+};
+$("importFile").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const arr=JSON.parse(await f.text()); if(!Array.isArray(arr)) throw 0;
+    const n=await addMany(arr);
+    setStatus(`백업에서 기록 ${n}개를 불러왔어요.`);
+  }catch(err){ setStatus("백업 파일을 읽지 못했어요. 이 앱에서 저장한 .json 파일인지 확인해 주세요.", true); }
+  e.target.value="";
+};
+
+/* ---------- wire up ---------- */
+$("saveBtn").onclick=saveRecord;
+$("refreshBtn").onclick=()=>current && fetchWeather(current.lat, current.lon, current.place);
+$("locBtn").onclick=locate;
+$("cityBtn").onclick=searchCity;
+$("cityInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); searchCity(); } });
+$("q").addEventListener("input", renderList);
+$("d").addEventListener("change", renderList);
+
+if(!cloudEnabled) records = loadLocal();
+renderAccount();
+renderList();
+locate();
+if(cloudEnabled) initCloud();
+</script>
+</body>
+</html>

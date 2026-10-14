@@ -222,8 +222,23 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .entry .memo{margin-top:6px;font-size:14px;overflow-wrap:anywhere;background:var(--field);border-radius:4px 14px 14px 14px;padding:6px 10px;display:inline-block}
 .entry .side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;align-self:start}
 .entry .t{font-family:var(--font-display);font-weight:700;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
-.entry .del{padding:2px 10px;font-size:12px;color:var(--muted);background:transparent;border-color:transparent}
-.entry .del.confirm{color:var(--danger);border-color:var(--danger)}
+.entry[data-id]{position:relative;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .15s, box-shadow .15s}
+.entry .memo,.entry .title{-webkit-user-select:none;user-select:none}
+.entry .check{position:absolute;top:10px;left:10px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:none;z-index:1}
+body.selecting .entry .check{display:block}
+body.selecting .entry .edit{visibility:hidden}
+.entry.sel{box-shadow:0 0 0 3px var(--accent), var(--shadow);transform:scale(.985)}
+.entry.sel .check{background:var(--accent);border-color:var(--accent)}
+.entry.sel .check::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.entry .edit{border:1.5px solid var(--line)!important;color:var(--fg)!important}
+.tip-press{margin:0;text-align:center;font-size:12.5px;color:var(--muted)}
+.tip-press b{color:var(--accent-deep);font-weight:700}
+.selbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);box-shadow:0 -8px 24px rgba(60,50,110,.18);border-radius:22px 22px 0 0}
+.selrow{max-width:540px;margin:0 auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.selrow span{flex:1 1 120px;font-family:var(--font-display);font-weight:700;font-size:15px;min-width:0}
+.selrow button{padding:8px 14px;font-size:14px}
+.selrow .danger{background:var(--danger);border-color:var(--danger);color:#fff}
+body.selecting{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 110px)}
 mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
 .empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:14px;background:var(--surface);border:2px dashed var(--line);border-radius:22px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .empty svg{width:72px;height:72px}
@@ -330,6 +345,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
     <div class="active" id="active" hidden></div>
     <div id="paneDiary" role="tabpanel" aria-labelledby="tabDiary"><div class="list" id="list"></div></div>
     <div id="paneStats" role="tabpanel" aria-labelledby="tabStats" hidden></div>
+    <p class="tip-press">기록을 <b>꾸욱 길게 누르면</b> 여러 개를 골라 지울 수 있어요.</p>
     <div class="foot">
       <button id="excelBtn" type="button" class="excel">엑셀로 내보내기</button>
       <button id="exportBtn" type="button">백업 파일 저장</button>
@@ -337,6 +353,21 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
       <input id="importFile" type="file" accept="application/json,.json" hidden>
     </div>
   </section>
+</div>
+
+<div class="selbar" id="selbar" role="region" aria-label="선택한 기록" hidden>
+  <div class="selrow" id="selMain">
+    <span id="selCount">1개 선택됨</span>
+    <button type="button" id="selAll">전체</button>
+    <button type="button" id="selEdit">수정</button>
+    <button type="button" id="selDelete" class="danger">삭제</button>
+    <button type="button" id="selCancel">취소</button>
+  </div>
+  <div class="selrow" id="selConfirm" hidden>
+    <span id="selAsk"></span>
+    <button type="button" id="selYes" class="danger">삭제</button>
+    <button type="button" id="selNo">아니요</button>
+  </div>
 </div>
 
 <!--
@@ -528,6 +559,15 @@ async function addRecord(rec){
 async function updateRecord(id, patch){
   if(cloudEnabled){ await fb.fs.updateDoc(fb.fs.doc(fb.db,"users",user.uid,"records",id), patch); }
   else{ const r=records.find(x=>x.id===id); if(r) Object.assign(r, patch); saveLocal(records); renderList(); }
+}
+async function removeMany(ids){
+  if(cloudEnabled){
+    for(let i=0;i<ids.length;i+=400){
+      const b=fb.fs.writeBatch(fb.db);
+      ids.slice(i,i+400).forEach(id=>b.delete(fb.fs.doc(fb.db,"users",user.uid,"records",id)));
+      await b.commit();
+    }
+  }else{ const set=new Set(ids); records=records.filter(r=>!set.has(r.id)); saveLocal(records); renderList(); }
 }
 async function removeRecord(id){
   if(cloudEnabled){ await fb.fs.deleteDoc(fb.fs.doc(fb.db,"users",user.uid,"records",id)); }
@@ -982,7 +1022,8 @@ function renderList(){
   if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>조건에 맞는 기록이 없어요.<br>검색어나 조건을 바꿔 볼까요?</span></div>`; return; }
   const hits = r => tq ? tempHits(r,tq) : new Set();
   list.innerHTML = shown.map(r=> r.id===editingId ? editForm(r) : `
-    <div class="entry">
+    <div class="entry${selected.has(r.id)?" sel":""}" data-id="${esc(r.id)}">
+      <span class="check" aria-hidden="true"></span>
       <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
@@ -992,8 +1033,7 @@ function renderList(){
       </div>
       <div class="side">
         <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${Math.round(r.temp)}°</div>
-        <button class="edit" type="button" data-id="${esc(r.id)}">수정</button>
-        <button class="del" type="button" data-id="${esc(r.id)}">삭제</button>
+        <button class="edit" type="button" data-id="${esc(r.id)}">✎ 수정</button>
       </div>
     </div>`).join("");
   const f=list.querySelector(".editf"); if(f && !f.dataset.focused){ f.dataset.focused="1"; }
@@ -1041,14 +1081,62 @@ $("list").addEventListener("submit", async e=>{
 $("list").addEventListener("click", async e=>{
   if(e.target.closest(".edit")){ editingId=e.target.closest(".edit").dataset.id; renderList(); const el=$("ed-tmax"); if(el) el.focus({preventScroll:false}); return; }
   if(e.target.closest(".editf .cancel")){ editingId=null; renderList(); return; }
-  const b=e.target.closest(".del"); if(!b) return;
-  if(!b.classList.contains("confirm")){
-    b.classList.add("confirm"); b.textContent="정말 삭제";
-    setTimeout(()=>{ if(b.isConnected){ b.classList.remove("confirm"); b.textContent="삭제"; } },3000);
-    return;
+  const card=e.target.closest(".entry[data-id]");
+  if(card && (selectMode || justLongPressed)){
+    e.preventDefault();
+    if(justLongPressed){ justLongPressed=false; return; }
+    toggleSelect(card.dataset.id);
   }
-  try{ await removeRecord(b.dataset.id); }catch(err){ setStatus("삭제하지 못했어요. 잠시 후 다시 시도해 주세요.", true); }
 });
+
+/* ---------- long-press to select, then delete ---------- */
+let selectMode=false, justLongPressed=false, pressTimer=null, pressXY=null;
+const selected=new Set();
+function toggleSelect(id){
+  if(selected.has(id)) selected.delete(id); else selected.add(id);
+  if(!selected.size) exitSelect(); else { renderList(); renderSelBar(); }
+}
+function enterSelect(id){
+  selectMode=true; editingId=null; selected.clear(); selected.add(id);
+  document.body.classList.add("selecting");
+  if(navigator.vibrate) try{ navigator.vibrate(25); }catch(_){}
+  renderList(); renderSelBar();
+}
+function exitSelect(){
+  selectMode=false; selected.clear(); document.body.classList.remove("selecting");
+  $("selbar").hidden=true; $("selConfirm").hidden=true; renderList();
+}
+function renderSelBar(){
+  $("selbar").hidden=false; $("selConfirm").hidden=true; $("selMain").hidden=false;
+  $("selCount").textContent=`${selected.size}개 선택됨`;
+  $("selEdit").hidden = selected.size!==1;
+}
+$("list").addEventListener("pointerdown", e=>{
+  const card=e.target.closest(".entry[data-id]");
+  if(!card || e.target.closest("button,input,select,textarea,form") || (e.pointerType==="mouse" && e.button!==0)) return;
+  pressXY=[e.clientX,e.clientY];
+  justLongPressed=false;
+  clearTimeout(pressTimer);
+  pressTimer=setTimeout(()=>{ pressTimer=null; justLongPressed=true;
+    if(selectMode) toggleSelect(card.dataset.id); else enterSelect(card.dataset.id);
+  }, 550);
+});
+const cancelPress=()=>{ clearTimeout(pressTimer); pressTimer=null; };
+$("list").addEventListener("pointermove", e=>{ if(pressXY && Math.hypot(e.clientX-pressXY[0], e.clientY-pressXY[1])>10) cancelPress(); });
+["pointerup","pointercancel","pointerleave"].forEach(t=>$("list").addEventListener(t, cancelPress));
+$("list").addEventListener("contextmenu", e=>{ if(e.target.closest(".entry[data-id]")) e.preventDefault(); });
+$("selCancel").onclick=exitSelect;
+$("selAll").onclick=()=>{ const {shown}=filterRecords(); const all=shown.every(r=>selected.has(r.id));
+  if(all){ exitSelect(); return; } shown.forEach(r=>selected.add(r.id)); renderList(); renderSelBar(); };
+$("selEdit").onclick=()=>{ const id=[...selected][0]; exitSelect(); editingId=id; renderList(); };
+$("selDelete").onclick=()=>{ $("selMain").hidden=true; $("selConfirm").hidden=false; $("selAsk").textContent=`기록 ${selected.size}개를 지울까요? 되돌릴 수 없어요.`; };
+$("selNo").onclick=renderSelBar;
+$("selYes").onclick=async ()=>{
+  const ids=[...selected], btn=$("selYes"); btn.disabled=true; btn.textContent="지우는 중…";
+  try{ await removeMany(ids); exitSelect(); setStatus(`기록 ${ids.length}개를 지웠어요.`); }
+  catch(err){ setStatus("삭제하지 못했어요. 잠시 후 다시 시도해 주세요.", true); }
+  btn.disabled=false; btn.textContent="삭제";
+};
 
 /* ---------- backup ---------- */
 $("exportBtn").onclick=()=>{

@@ -160,6 +160,54 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .active{display:flex;flex-wrap:wrap;gap:6px;font-size:13px}
 .active span{background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-deep);border-radius:99px;padding:2px 10px}
 .foot .excel{background:var(--mint);border-color:var(--mint);color:#174a3e}
+/* month calendar forecast */
+.cal{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:12px 10px 14px;display:flex;flex-direction:column;gap:10px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cal-title{display:flex;flex-direction:column;align-items:center;min-width:0;text-align:center}
+.cal-title b{font-family:var(--font-display);font-weight:700;font-size:19px}
+.cal-title span{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.cal-nav{width:40px;height:40px;padding:0;font-size:22px;line-height:1;display:grid;place-items:center}
+.cal-nav:disabled{opacity:.3}
+.cal-note{text-align:center;font-size:13px;color:var(--muted)}
+.cal-note.err{color:var(--danger)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cw{text-align:center;font-size:12px;color:var(--muted);padding:2px 0}
+.cw.sun{color:#d4475a} .cw.sat{color:#3a7bc8}
+.cc{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;min-height:82px;padding:4px 0 5px;border-radius:14px;border:1.5px solid transparent;background:var(--field);font-family:var(--font-body);font-weight:400;color:var(--fg);box-shadow:none}
+.cc:hover{transform:none}
+.cc.blank{background:transparent}
+.cc.none{opacity:.55}
+.cc.past.rec{background:color-mix(in srgb,var(--accent) 8%,var(--field))}
+.cc.ext{background:transparent;border:1.5px dashed var(--line)}
+.cc.today{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.cc.on{box-shadow:0 0 0 2.5px var(--accent-deep)}
+.cd{font-family:var(--font-display);font-weight:700;font-size:13px;line-height:1.2}
+.cc.sun .cd{color:#d4475a} .cc.sat .cd{color:#3a7bc8}
+.ci{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;background:var(--sky-part)}
+.ci.k-sun{background:var(--sky-sun)} .ci.k-cloud{background:var(--sky-cloud)} .ci.k-rain{background:var(--sky-rain)} .ci.k-snow{background:var(--sky-snow)} .ci.k-storm{background:var(--sky-storm)} .ci.k-fog{background:var(--sky-fog)}
+.ci svg{width:22px;height:22px;display:block}
+.ci.noic{background:transparent;color:var(--muted);font-size:14px}
+.ct{display:flex;flex-direction:column;align-items:center;line-height:1.15;font-variant-numeric:tabular-nums}
+.ct b{font-family:var(--font-display);font-weight:700;font-size:12.5px}
+.ct .hi{color:#d4475a} .ct .lo{color:#3a7bc8}
+.cc.ext .ct b{opacity:.7}
+.cp{position:absolute;top:3px;right:4px;font-size:10px;color:#3a7bc8}
+.cc::after{content:"";position:absolute;top:6px;left:5px;width:5px;height:5px;border-radius:50%}
+.cc.kma::after{background:#3879b8} .cc.adj::after{background:#9cc3e8} .cc.rec::after{background:var(--accent)}
+.cal-detail{display:flex;gap:12px;align-items:flex-start;background:var(--field);border-radius:18px;padding:12px 14px}
+.ci.big{width:52px;height:52px;border-radius:16px;flex:none}
+.ci.big svg{width:44px;height:44px}
+.cdt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cdt b{font-family:var(--font-display);font-weight:700;font-size:16px}
+.cdt span{font-size:13.5px;color:var(--muted)}
+.cdt .lohi{display:flex;gap:10px} .cdt .lohi em{font-style:normal;font-family:var(--font-display);font-weight:700;font-size:15px}
+.cdt .lohi .hi{color:#d4475a} .cdt .lohi .lo{color:#3a7bc8}
+.cdt .memo{color:var(--fg);overflow-wrap:anywhere}
+.srcl{font-size:11.5px;color:var(--muted)} .srcl.kma{color:#2f6fae} .srcl.rec{color:var(--accent-deep)}
+.cal-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:12px;color:var(--muted)}
+.lg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
+.lg.kma{background:#3879b8} .lg.adj{background:#9cc3e8} .lg.rec{background:var(--accent)} .lg.ext{border:1.5px dashed var(--muted);border-radius:3px}
+@media (max-width:380px){ .cc{min-height:76px} .ci{width:22px;height:22px} .ci svg{width:19px;height:19px} .ct b{font-size:11.5px} }
 /* stats */
 .stats{display:flex;flex-direction:column;gap:14px}
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -312,11 +360,13 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
     <div class="results" id="cityResults"></div>
   </div>
 
+
   <section>
     <div class="sechead"><h2>날씨 일기장</h2><span class="count" id="count"></span></div>
     <div class="tabs" role="tablist" aria-label="일기장 보기">
       <button type="button" role="tab" id="tabDiary" aria-selected="true" aria-controls="paneDiary">기록</button>
       <button type="button" role="tab" id="tabStats" aria-selected="false" aria-controls="paneStats">통계</button>
+      <button type="button" role="tab" id="tabFc" aria-selected="false" aria-controls="paneFc">예보</button>
     </div>
     <div class="migrate" id="migrate" hidden>
       <span id="migrateText"></span>
@@ -345,6 +395,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
     <div class="active" id="active" hidden></div>
     <div id="paneDiary" role="tabpanel" aria-labelledby="tabDiary"><div class="list" id="list"></div></div>
     <div id="paneStats" role="tabpanel" aria-labelledby="tabStats" hidden></div>
+    <div id="paneFc" role="tabpanel" aria-labelledby="tabFc" hidden></div>
     <p class="tip-press">기록을 <b>꾸욱 길게 누르면</b> 여러 개를 골라 지울 수 있어요.</p>
     <div class="foot">
       <button id="excelBtn" type="button" class="excel">엑셀로 내보내기</button>
@@ -634,7 +685,7 @@ function kmaCond(pty, sky){
   const S={1:[0,"맑음"],3:[2,"구름많음"],4:[3,"흐림"]};
   return S[sky] || null;
 }
-let kmaError = "";
+let kmaError = "", lastKma = null;
 async function fetchWeather(lat, lon, name){
   setStatus("날씨를 불러오는 중…");
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
@@ -674,9 +725,128 @@ async function fetchWeather(lat, lon, name){
     if(current.tmin!=null && current.temp<current.tmin) current.tmin=current.temp;
     current.src="kma";
   }
+  lastKma = kma;
   renderNow();
+  loadForecast(current.lat, current.lon, current.place);
   setStatus(useKma && !kma ? `기상청 날씨를 불러오지 못해 다른 예보(Open-Meteo)로 보여줘요. (${kmaError})` : "");
 }
+/* ---------- 한 달 예보 ----------
+   오늘~3일 뒤: 기상청 단기예보(중계 서버)
+   ~16일 뒤: Open-Meteo 예보를 기상청 값과의 차이만큼 보정
+   17일~5주 뒤: GFS 앙상블(31개 예측) 평균 → 주간 경향(참고용)            */
+const WD = ["일","월","화","수","목","금","토"];
+let fcSeq = 0, fcData = null, fcPlace = "", fcLoading = false, fcError = false, calMonth = null, calSel = null;
+async function loadForecast(lat, lon, place){
+  const seq = ++fcSeq;
+  fcPlace = place || ""; fcLoading = true; if(activeTab==="fc") renderCalendar();
+  const base = `latitude=${lat}&longitude=${lon}&timezone=auto`;
+  const [om, ens] = await Promise.all([
+    fetch(`https://api.open-meteo.com/v1/forecast?${base}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&forecast_days=16`)
+      .then(r=>r.ok?r.json():null).catch(()=>null),
+    fetch(`https://ensemble-api.open-meteo.com/v1/ensemble?${base}&models=gfs05&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=35`)
+      .then(r=>r.ok?r.json():null).catch(()=>null)
+  ]);
+  if(seq!==fcSeq) return;
+  fcLoading = false;
+  if(!om || !om.daily){ fcError = true; if(activeTab==="fc") renderCalendar(); return; }
+  fcError = false;
+  fcData = buildForecast(om.daily, ens && ens.daily, lastKma && inKorea(lat,lon) ? lastKma.days : null);
+  if(activeTab==="fc") renderCalendar();
+}
+const ymd8 = s => s.replace(/-/g,"");
+function buildForecast(od, ed, kmaDays){
+  const kma = {}; (kmaDays||[]).forEach(d=>{ if(!d.partial && d.tmax!=null && d.tmin!=null) kma[d.date]=d; });
+  // 기상청과 겹치는 날로 보정값 계산 (최대 ±6°)
+  const dx=[], dn=[];
+  od.time.forEach((t,i)=>{ const k=kma[ymd8(t)]; if(k){ dx.push(k.tmax-od.temperature_2m_max[i]); dn.push(k.tmin-od.temperature_2m_min[i]); } });
+  const clamp = v => Math.max(-6, Math.min(6, v));
+  const bx = dx.length ? clamp(avg(dx)) : 0, bn = dn.length ? clamp(avg(dn)) : 0;
+  const days = od.time.map((t,i)=>{
+    const k = kma[ymd8(t)];
+    if(k){
+      const kc = kmaCond(k.pty, k.sky) || [od.weather_code[i], WMO[od.weather_code[i]]||""];
+      return { date:t, tmax:k.tmax, tmin:k.tmin, code:kc[0], cond:kc[1], pop:k.pop, src:"kma" };
+    }
+    return { date:t, tmax:od.temperature_2m_max[i]+bx, tmin:od.temperature_2m_min[i]+bn,
+             code:od.weather_code[i], cond:WMO[od.weather_code[i]]||"", pop:od.precipitation_probability_max ? od.precipitation_probability_max[i] : null,
+             src: dx.length ? "adj" : "om" };
+  });
+  // 17일 이후: 앙상블 평균(참고용)
+  const ext = [];
+  if(ed && ed.time){
+    const keys = pre => Object.keys(ed).filter(k=>k===pre || k.startsWith(pre+"_member"));
+    const kx=keys("temperature_2m_max"), kn=keys("temperature_2m_min"), kp=keys("precipitation_sum");
+    const last = days.length ? days[days.length-1].date : "";
+    ed.time.forEach((t,i)=>{
+      if(t<=last) return;
+      const mx=kx.map(k=>ed[k][i]).filter(v=>v!=null), mn=kn.map(k=>ed[k][i]).filter(v=>v!=null);
+      if(!mx.length || !mn.length) return;
+      const pr=kp.map(k=>ed[k][i]).filter(v=>v!=null);
+      const wet = pr.length ? pr.filter(v=>v>=1).length/pr.length : null;
+      ext.push({ date:t, tmax:avg(mx)+bx, tmin:avg(mn)+bn, pop: wet==null?null:Math.round(wet*100),
+                 code: wet!=null && wet>=0.5 ? 61 : null, cond: wet!=null && wet>=0.5 ? "비 가능성" : "", src:"ext" });
+    });
+  }
+  return { days, ext, bias:{bx,bn,used:dx.length} };
+}
+function md(t, withDay){ const [y,m,d]=t.split("-").map(Number); const w=new Date(y,m-1,d).getDay(); return withDay ? `${m}.${d} (${WD[w]})` : `${m}.${d}`; }
+const SRC_LABEL = { kma:"기상청 예보", adj:"기상청에 맞춰 보정한 예보", om:"Open-Meteo 예보", ext:"장기 경향(참고용)", rec:"내 기록" };
+function calInfo(){
+  const today=localDay(new Date()), info={};
+  // 내 기록: 날짜별 가장 늦게 기록한 것
+  const recs={}; records.forEach(r=>{ const d=dayKey(r); if(!recs[d] || r.at>recs[d].at) recs[d]=r; });
+  Object.values(recs).forEach(r=>{ const d=dayKey(r);
+    info[d]={ date:d, tmax:r.tmax!=null?r.tmax:r.temp, tmin:r.tmin!=null?r.tmin:r.temp, code:r.code, cond:r.cond, pop:null, src:"rec", memo:r.memo||"" }; });
+  if(fcData){ [...fcData.days, ...fcData.ext].forEach(d=>{ if(d.date>=today) info[d.date]={...d, memo: info[d.date] && info[d.date].memo || ""}; }); }
+  return {info, today};
+}
+function renderCalendar(){
+  const pane=$("paneFc"); if(!pane || pane.hidden) return;
+  const {info, today} = calInfo();
+  const now=new Date();
+  if(!calMonth) calMonth=new Date(now.getFullYear(), now.getMonth(), 1);
+  if(!calSel) calSel=today;
+  const dates=Object.keys(info).sort();
+  const firstM = dates.length ? dates[0].slice(0,7) : today.slice(0,7);
+  const lastM = dates.length ? dates[dates.length-1].slice(0,7) : today.slice(0,7);
+  const ym = `${calMonth.getFullYear()}-${String(calMonth.getMonth()+1).padStart(2,"0")}`;
+  const y=calMonth.getFullYear(), m=calMonth.getMonth(), startW=new Date(y,m,1).getDay(), nDays=new Date(y,m+1,0).getDate();
+  let cells="";
+  for(let i=0;i<startW;i++) cells+=`<span class="cc blank"></span>`;
+  for(let d=1; d<=nDays; d++){
+    const key=`${ym}-${String(d).padStart(2,"0")}`, w=(startW+d-1)%7, x=info[key];
+    const cls=["cc", w===0?"sun":w===6?"sat":"", key===today?"today":"", key<today?"past":"", x?x.src:"none", key===calSel?"on":""].join(" ");
+    const ic = x && x.code!=null ? `<span class="ci k-${kindOf(x.code)}">${weatherIcon(kindOf(x.code))}</span>` : `<span class="ci noic">${x && x.src==="ext" ? "≈" : ""}</span>`;
+    const tt = x ? `<span class="ct"><b class="hi">${Math.round(x.tmax)}°</b><b class="lo">${Math.round(x.tmin)}°</b></span>` : `<span class="ct"></span>`;
+    cells+=`<button type="button" class="${cls}" data-d="${key}" aria-label="${m+1}월 ${d}일${x?` ${x.cond||""} 최고 ${Math.round(x.tmax)}도 최저 ${Math.round(x.tmin)}도`:""}"><span class="cd">${d}</span>${ic}${tt}${x&&x.pop!=null&&x.pop>=50&&x.src!=="rec"?`<span class="cp">☂</span>`:""}</button>`;
+  }
+  const sel=info[calSel];
+  const [sy,sm,sd]=calSel.split("-").map(Number), sw=WD[new Date(sy,sm-1,sd).getDay()];
+  const detail = sel ? `<div class="cal-detail">
+      <span class="ci big k-${sel.code!=null?kindOf(sel.code):"cloud"}">${sel.code!=null?weatherIcon(kindOf(sel.code)):""}</span>
+      <div class="cdt"><b>${sm}월 ${sd}일 (${sw})${calSel===today?" · 오늘":""}</b>
+        <span>${esc(sel.cond||"")}${sel.pop!=null&&sel.src!=="rec"?` · 비 올 확률 ${sel.pop}%`:""}</span>
+        <span class="lohi"><em class="lo">최저 ${Math.round(sel.tmin)}°</em><em class="hi">최고 ${Math.round(sel.tmax)}°</em></span>
+        ${sel.memo?`<span class="memo">${esc(sel.memo)}</span>`:""}
+        <small class="srcl ${sel.src}">${SRC_LABEL[sel.src]||""}</small></div></div>`
+    : `<div class="cal-detail"><div class="cdt"><b>${sm}월 ${sd}일 (${sw})</b><span>${calSel<today?"이날은 기록이 없어요.":"아직 예보가 나오지 않은 날이에요."}</span></div></div>`;
+  const status = fcLoading ? `<div class="cal-note">예보를 불러오는 중…</div>` : fcError ? `<div class="cal-note err">예보를 불러오지 못했어요. 위 날씨 카드에서 새로고침해 주세요.</div>` : !fcData ? `<div class="cal-note">위치를 찾으면 앞으로 한 달 예보가 달력에 채워져요.</div>` : "";
+  pane.innerHTML = `<div class="cal">
+    <div class="cal-head">
+      <button type="button" class="cal-nav" id="calPrev" aria-label="이전 달" ${ym<=firstM?"disabled":""}>‹</button>
+      <div class="cal-title"><b>${y}년 ${m+1}월</b>${fcPlace?`<span>${esc(fcPlace)}</span>`:""}</div>
+      <button type="button" class="cal-nav" id="calNext" aria-label="다음 달" ${ym>=lastM?"disabled":""}>›</button>
+    </div>
+    ${status}
+    <div class="cal-grid" role="grid">${WD.map((w,i)=>`<span class="cw ${i===0?"sun":i===6?"sat":""}">${w}</span>`).join("")}${cells}</div>
+    ${detail}
+    <div class="cal-legend"><span><i class="lg kma"></i>기상청</span><span><i class="lg adj"></i>보정 예보</span><span><i class="lg ext"></i>경향(참고)</span><span><i class="lg rec"></i>내 기록</span></div>
+  </div>`;
+  $("calPrev").onclick=()=>{ calMonth=new Date(y,m-1,1); renderCalendar(); };
+  $("calNext").onclick=()=>{ calMonth=new Date(y,m+1,1); renderCalendar(); };
+  pane.querySelector(".cal-grid").onclick=e=>{ const b=e.target.closest(".cc[data-d]"); if(!b) return; calSel=b.dataset.d; renderCalendar(); };
+}
+
 function renderNow(){
   const c=current; $("nowBody").hidden=false;
   $("placeName").textContent=c.place;
@@ -835,9 +1005,14 @@ function setTab(t){
   activeTab=t;
   $("tabDiary").setAttribute("aria-selected", String(t==="diary"));
   $("tabStats").setAttribute("aria-selected", String(t==="stats"));
+  $("tabFc").setAttribute("aria-selected", String(t==="fc"));
   $("paneDiary").hidden = t!=="diary";
   $("paneStats").hidden = t!=="stats";
-  renderList();
+  $("paneFc").hidden = t!=="fc";
+  document.querySelector("section .filters").hidden = t==="fc";
+  document.querySelector(".tip-press").hidden = t!=="diary";
+  if(t==="fc"){ $("adv").hidden=true; $("advBtn").setAttribute("aria-expanded","false"); $("active").hidden=true; renderCalendar(); }
+  else renderList();
 }
 
 /* ---------- statistics ---------- */
@@ -1017,6 +1192,7 @@ function renderList(){
   }
   renderActive(tq);
   if(activeTab==="stats") renderStats(shown);
+  if(activeTab==="fc"){ renderCalendar(); return; }
   $("count").textContent = records.length ? (shown.length===records.length ? `${records.length}개` : `${shown.length} / ${records.length}개`) : "";
   if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘이 날씨 기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
   if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>조건에 맞는 기록이 없어요.<br>검색어나 조건을 바꿔 볼까요?</span></div>`; return; }
@@ -1182,6 +1358,7 @@ $("advReset").onclick=()=>{ $("from").value=""; $("to").value=""; $("placeSel").
   $("kinds").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false")); renderList(); };
 $("tabDiary").onclick=()=>setTab("diary");
 $("tabStats").onclick=()=>setTab("stats");
+$("tabFc").onclick=()=>setTab("fc");
 $("excelBtn").onclick=exportExcel;
 
 if(!cloudEnabled) records = loadLocal();

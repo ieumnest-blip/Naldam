@@ -6,6 +6,7 @@
 <title>날담</title>
 <meta name="description" content="날담(Naldam) · 날씨를 담다 · 지금 있는 곳의 날씨를 기록하는 날씨 일기장">
 <meta name="theme-color" content="#e6f2ff">
+<meta name="format-detection" content="telephone=no,email=no,address=no,date=no">
 <meta name="apple-mobile-web-app-title" content="날담">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -79,6 +80,8 @@ header p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
 .account{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
   background:var(--surface);border:2px dashed var(--line);border-radius:18px;padding:10px 12px 10px 14px;font-size:13.5px}
 .account .who{min-width:0;overflow-wrap:anywhere}
+.account .ok{color:#2f8f6f;font-size:12.5px;margin-right:4px}
+.account .mail{display:block;font-size:12px;color:var(--muted);pointer-events:none;-webkit-user-select:none;user-select:none}
 .account .who b{font-family:var(--font-display);font-weight:700;font-size:15px}
 .account button{padding:8px 14px;font-size:13.5px}
 .gbtn{display:inline-flex;align-items:center;gap:8px}
@@ -198,7 +201,19 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .hilo span,.entry .chips span{font-size:13px;border-radius:99px;padding:2px 10px;font-variant-numeric:tabular-nums}
 .hilo .hi,.entry .chips .hi{background:color-mix(in srgb,#ff7a7a 18%,var(--surface));color:#d4475a}
 .hilo .lo,.entry .chips .lo{background:color-mix(in srgb,var(--rain) 20%,var(--surface));color:#3a7bc8}
-.entry .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.entry .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center}
+.srctag,.srcchip{font-size:11.5px;color:var(--muted);border:1.5px dashed var(--line);border-radius:99px;padding:0 8px}
+.srcchip{font-size:12px;padding:1px 10px}
+.srctag.kma,.srcchip.kma{color:#2f6fae;border-color:color-mix(in srgb,#3879b8 40%,transparent);border-style:solid}
+.srctag.ed{color:#2f8f6f;border-color:color-mix(in srgb,#2f8f6f 45%,transparent);border-style:solid}
+.entry .edit{padding:2px 10px;font-size:12px;color:var(--muted);background:transparent;border-color:transparent}
+.entry.editing{grid-template-columns:56px 1fr;align-items:start}
+.editf{display:flex;flex-direction:column;gap:10px;min-width:0}
+.ef{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted);min-width:0}
+.ef input,.ef select,.ef textarea{font-size:15px;color:var(--fg);padding:8px 10px}
+.ef3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.eb{display:flex;gap:8px}
+.eb button{padding:8px 18px}
 .entry .chips span{font-size:12px;padding:1px 8px}
 .entry .chips span.hit,.entry .t.hit{outline:2px solid var(--mark);background:var(--mark);color:var(--fg)}
 .entry .t.hit{border-radius:10px;padding:0 4px}
@@ -349,6 +364,9 @@ const FIREBASE_CONFIG = {
   measurementId: "G-FC2H62NBM5"
 };
 
+// ▼ 기상청 중계 서버(Cloudflare Worker) 주소. 비워 두면 Open-Meteo 예보만 사용해요.
+const KMA_PROXY = "https://naldam.ii-iji.workers.dev";
+
 const FB = "https://www.gstatic.com/firebasejs/10.12.2/";
 const LOCAL_KEY = "weather-log-v1";
 const WMO = {0:"맑음",1:"대체로 맑음",2:"구름 조금",3:"흐림",45:"안개",48:"서리 안개",51:"약한 이슬비",53:"이슬비",55:"강한 이슬비",56:"어는 이슬비",57:"어는 이슬비",61:"약한 비",63:"비",65:"강한 비",66:"어는 비",67:"강한 어는 비",71:"약한 눈",73:"눈",75:"많은 눈",77:"싸락눈",80:"약한 소나기",81:"소나기",82:"강한 소나기",85:"소낙눈",86:"강한 소낙눈",95:"뇌우",96:"우박 동반 뇌우",99:"강한 우박 뇌우"};
@@ -434,7 +452,7 @@ function renderAccount(){
   }
   if(!fb){ box.innerHTML=`<span class="who">계정 확인 중…</span>`; return; }
   if(user){
-    box.innerHTML=`<span class="who"><b>${esc(user.displayName||"내 계정")}</b> · ${esc(user.email||"")}</span><button type="button" id="logoutBtn">로그아웃</button>`;
+    box.innerHTML=`<span class="who"><span class="ok">✓ 로그인됨</span> <b>${esc(user.displayName||"내 계정")}</b><span class="mail">${esc((user.email||"").replace("@","\u200b@"))}</span></span><button type="button" id="logoutBtn">로그아웃</button>`;
     $("logoutBtn").onclick=()=>fb.auth.signOut(fb.authInst);
   }else{
     box.innerHTML=`<span class="who">로그인하면 기록이 구글 계정에 저장돼 어느 기기에서나 볼 수 있어요.</span><button type="button" class="gbtn" id="loginBtn">${G_ICON}Google로 로그인</button>`;
@@ -507,6 +525,10 @@ async function addRecord(rec){
     renderList();
   }
 }
+async function updateRecord(id, patch){
+  if(cloudEnabled){ await fb.fs.updateDoc(fb.fs.doc(fb.db,"users",user.uid,"records",id), patch); }
+  else{ const r=records.find(x=>x.id===id); if(r) Object.assign(r, patch); saveLocal(records); renderList(); }
+}
 async function removeRecord(id){
   if(cloudEnabled){ await fb.fs.deleteDoc(fb.fs.doc(fb.db,"users",user.uid,"records",id)); }
   else{ records=records.filter(r=>r.id!==id); saveLocal(records); renderList(); }
@@ -555,30 +577,65 @@ async function placeName(lat, lon){
   }catch(e){}
   return `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
 }
+const inKorea = (lat,lon) => lat>=33 && lat<=38.9 && lon>=124.5 && lon<=131.9;
+async function fetchKma(lat, lon){
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(), 8000);
+  try{
+    const r=await fetch(`${KMA_PROXY.replace(/\/+$/,"")}/?lat=${lat}&lon=${lon}`, {signal:ctl.signal});
+    const j=await r.json().catch(()=>({error:"bad_json", message:`응답 오류 ${r.status}`}));
+    if(!r.ok || j.error) throw new Error(j.message || `응답 오류 ${r.status}`);
+    return j;
+  } finally { clearTimeout(t); }
+}
+// 기상청 강수형태(PTY)·하늘상태(SKY) → 앱의 날씨 코드
+function kmaCond(pty, sky){
+  const P={1:[63,"비"],2:[66,"비/눈"],3:[73,"눈"],4:[80,"소나기"],5:[51,"빗방울"],6:[66,"빗방울눈날림"],7:[71,"눈날림"]};
+  if(pty && P[pty]) return P[pty];
+  const S={1:[0,"맑음"],3:[2,"구름많음"],4:[3,"흐림"]};
+  return S[sky] || null;
+}
+let kmaError = "";
 async function fetchWeather(lat, lon, name){
   setStatus("날씨를 불러오는 중…");
-  try{
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
-      `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m`+
-      `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=1`+
-      `&wind_speed_unit=ms&timezone=auto`;
-    const [wr, nm] = await Promise.all([
-      fetch(url).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }),
-      name ? Promise.resolve(name) : placeName(lat, lon)
-    ]);
-    const c = wr.current;
-    current = {
-      place:nm, lat:+lat.toFixed(4), lon:+lon.toFixed(4),
-      temp:c.temperature_2m, feels:c.apparent_temperature, hum:c.relative_humidity_2m,
-      rain:c.precipitation, code:c.weather_code, cond:WMO[c.weather_code] || "알 수 없음",
-      cloud:c.cloud_cover, pres:c.pressure_msl, wind:c.wind_speed_10m, windDir:c.wind_direction_10m,
-      tmax: wr.daily ? wr.daily.temperature_2m_max[0] : null, tmin: wr.daily ? wr.daily.temperature_2m_min[0] : null,
-      psum: wr.daily && wr.daily.precipitation_sum ? wr.daily.precipitation_sum[0] : null
-    };
-    renderNow(); setStatus("");
-  }catch(e){
-    setStatus("날씨를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침을 눌러 주세요.", true);
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
+    `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m`+
+    `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=1`+
+    `&wind_speed_unit=ms&timezone=auto`;
+  const useKma = !!KMA_PROXY && inKorea(lat, lon);
+  kmaError = "";
+  const [wr, kma, nm] = await Promise.all([
+    fetch(url).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }).catch(()=>null),
+    useKma ? fetchKma(lat, lon).catch(e=>{ kmaError = e.name==="AbortError" ? "응답 시간 초과" : (e.message||"연결 실패"); return null; }) : Promise.resolve(null),
+    name ? Promise.resolve(name) : placeName(lat, lon)
+  ]);
+  if(!wr && !kma){ setStatus("날씨를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침을 눌러 주세요.", true); return; }
+  const c = wr ? wr.current : {};
+  current = {
+    place:nm, lat:+lat.toFixed(4), lon:+lon.toFixed(4),
+    temp:c.temperature_2m, feels:c.apparent_temperature, hum:c.relative_humidity_2m,
+    rain:c.precipitation, code:c.weather_code, cond:WMO[c.weather_code] || "알 수 없음",
+    cloud:c.cloud_cover ?? null, pres:c.pressure_msl ?? null, wind:c.wind_speed_10m, windDir:c.wind_direction_10m,
+    tmax: wr && wr.daily ? wr.daily.temperature_2m_max[0] : null, tmin: wr && wr.daily ? wr.daily.temperature_2m_min[0] : null,
+    psum: wr && wr.daily && wr.daily.precipitation_sum ? wr.daily.precipitation_sum[0] : null,
+    src: "open-meteo"
+  };
+  if(kma){
+    const n=kma.now||{}, t=kma.today||{};
+    if(n.temp!=null){ current.temp=n.temp; if(current.feels==null) current.feels=n.temp; }
+    if(n.humidity!=null) current.hum=n.humidity;
+    if(n.wind!=null) current.wind=n.wind;
+    if(n.windDir!=null) current.windDir=n.windDir;
+    if(n.rain1h!=null) current.rain=n.rain1h;
+    if(t.tmax!=null) current.tmax=t.tmax;
+    if(t.tmin!=null) current.tmin=t.tmin;
+    const kc=kmaCond(n.pty, t.sky);
+    if(kc){ current.code=kc[0]; current.cond=kc[1]; }
+    if(current.tmax!=null && current.temp>current.tmax) current.tmax=current.temp;
+    if(current.tmin!=null && current.temp<current.tmin) current.tmin=current.temp;
+    current.src="kma";
   }
+  renderNow();
+  setStatus(useKma && !kma ? `기상청 날씨를 불러오지 못해 다른 예보(Open-Meteo)로 보여줘요. (${kmaError})` : "");
 }
 function renderNow(){
   const c=current; $("nowBody").hidden=false;
@@ -588,16 +645,17 @@ function renderNow(){
   $("cond").textContent=c.cond;
   $("hilo").innerHTML = (c.tmax!=null && c.tmin!=null)
     ? `<span class="hi">최고 ${Math.round(c.tmax)}°</span><span class="lo">최저 ${Math.round(c.tmin)}°</span>` : "";
+  $("hilo").insertAdjacentHTML("beforeend", `<span class="srcchip ${c.src==="kma"?"kma":""}">${c.src==="kma"?"기상청 기준":"Open-Meteo 예보"}</span>`);
   const k=kindOf(c.code);
   $("wicon").innerHTML=weatherIcon(k);
   $("chat").textContent=chatLine(c);
   $("nowCard").className="card now k-"+k;
-  $("feels").textContent=`${Math.round(c.feels)}℃`;
+  $("feels").textContent= c.feels!=null ? `${Math.round(c.feels)}℃` : "–";
   $("hum").textContent=`${c.hum}%`;
   $("rain").textContent=`${c.rain} mm`;
-  $("wind").innerHTML=`${c.wind.toFixed(1)} m/s<small>${dirName(c.windDir)}풍</small>`;
-  $("pres").textContent=`${Math.round(c.pres)} hPa`;
-  $("cloud").textContent=`${c.cloud}%`;
+  $("wind").innerHTML=`${Number(c.wind).toFixed(1)} m/s<small>${dirName(c.windDir)}풍</small>`;
+  $("pres").textContent= c.pres!=null ? `${Math.round(c.pres)} hPa` : "–";
+  $("cloud").textContent= c.cloud!=null ? `${c.cloud}%` : "–";
 }
 function locate(){
   if(!("geolocation" in navigator)){ setStatus("이 브라우저는 위치 기능을 지원하지 않아요. 아래에서 지역을 검색해 주세요.", true); return; }
@@ -878,7 +936,7 @@ async function exportExcel(){
     "날짜":dayKey(r), "시간":`${p2(d.getHours())}:${p2(d.getMinutes())}`, "지역":r.place||"", "날씨":r.cond||"",
     "기온(℃)":r1(r.temp), "체감(℃)":r1(r.feels), "그날 최고(℃)":r1(r.tmax), "그날 최저(℃)":r1(r.tmin),
     "그날 강수량(mm)":r1(r.psum!=null?r.psum:r.rain), "비 온 날":isWet(r)?"O":"", "습도(%)":r.hum, "바람(m/s)":r1(r.wind),
-    "풍향":r.windDir!=null?dirName(r.windDir):"", "기압(hPa)":r.pres!=null?Math.round(r.pres):null, "구름(%)":r.cloud, "메모":r.memo||""
+    "풍향":r.windDir!=null?dirName(r.windDir):"", "기압(hPa)":r.pres!=null?Math.round(r.pres):null, "구름(%)":r.cloud, "자료 출처":r.edited?"직접 수정":r.src==="kma"?"기상청":"Open-Meteo 예보", "메모":r.memo||""
   };});
   const months = summarizeMonths(summarizeDays(shown)).map(m=>({
     "월":m.month, "기록한 날":m.days, "기록 수":m.recs, "평균 기온(℃)":r1(m.avgTemp), "평균 최고(℃)":r1(m.avgHi), "평균 최저(℃)":r1(m.avgLo),
@@ -923,22 +981,66 @@ function renderList(){
   if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘이 날씨 기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
   if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>조건에 맞는 기록이 없어요.<br>검색어나 조건을 바꿔 볼까요?</span></div>`; return; }
   const hits = r => tq ? tempHits(r,tq) : new Set();
-  list.innerHTML = shown.map(r=>`
+  list.innerHTML = shown.map(r=> r.id===editingId ? editForm(r) : `
     <div class="entry">
       <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
-        ${(r.tmax!=null&&r.tmin!=null)?`<div class="chips"><span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span></div>`:""}
+        <div class="chips">${(r.tmax!=null&&r.tmin!=null)?`<span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span>`:""}<span class="srctag ${r.edited?"ed":r.src==="kma"?"kma":""}">${r.edited?"직접 수정":r.src==="kma"?"기상청":"예보 기준"}</span></div>
         <div class="meta">${fmtDate(r.at)}${(r.psum??r.rain)>0?` · 강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:""} · 습도 ${r.hum}% · ${dirName(r.windDir)} ${Number(r.wind).toFixed(1)}m/s</div>
         ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
       </div>
       <div class="side">
         <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${Math.round(r.temp)}°</div>
+        <button class="edit" type="button" data-id="${esc(r.id)}">수정</button>
         <button class="del" type="button" data-id="${esc(r.id)}">삭제</button>
       </div>
     </div>`).join("");
+  const f=list.querySelector(".editf"); if(f && !f.dataset.focused){ f.dataset.focused="1"; }
 }
+/* ---------- edit a record ---------- */
+let editingId = null;
+const COND_OPTIONS = [[0,"맑음"],[1,"대체로 맑음"],[2,"구름많음"],[3,"흐림"],[45,"안개"],[51,"빗방울"],[63,"비"],[80,"소나기"],[66,"비/눈"],[73,"눈"],[95,"뇌우"]];
+function editForm(r){
+  const has = COND_OPTIONS.some(([c,l])=>c===r.code && l===r.cond);
+  const opts = (has?[]:[[r.code,r.cond]]).concat(COND_OPTIONS)
+    .map(([c,l])=>`<option value="${c}|${esc(l)}"${c===r.code&&l===r.cond?" selected":""}>${esc(l)}</option>`).join("");
+  const v = x => x==null ? "" : Math.round(x*10)/10;
+  const pr = r.psum!=null ? r.psum : r.rain;
+  return `<div class="entry editing">
+    <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
+    <form class="editf" data-id="${esc(r.id)}">
+      <div class="title">${fmtDate(r.at)} · ${esc(r.place)}</div>
+      <label class="ef">날씨<select name="cond" id="ed-cond">${opts}</select></label>
+      <div class="ef3">
+        <label class="ef">최고 ℃<input name="tmax" id="ed-tmax" type="number" step="0.1" inputmode="decimal" value="${v(r.tmax)}"></label>
+        <label class="ef">최저 ℃<input name="tmin" id="ed-tmin" type="number" step="0.1" inputmode="decimal" value="${v(r.tmin)}"></label>
+        <label class="ef">강수량 mm<input name="psum" id="ed-psum" type="number" step="0.1" min="0" inputmode="decimal" value="${v(pr)}"></label>
+      </div>
+      <label class="ef">메모<textarea name="memo" id="ed-memo" rows="2">${esc(r.memo||"")}</textarea></label>
+      <div class="eb"><button type="submit" class="primary">저장</button><button type="button" class="cancel">취소</button></div>
+    </form>
+  </div>`;
+}
+$("list").addEventListener("submit", async e=>{
+  const f=e.target.closest(".editf"); if(!f) return;
+  e.preventDefault();
+  const num = x => x.trim()==="" ? null : Number(x);
+  const [code, label] = f.cond.value.split("|");
+  const patch = { code:Number(code), cond:label, tmax:num(f.tmax.value), tmin:num(f.tmin.value), psum:num(f.psum.value), memo:f.memo.value.trim() };
+  // 메모만 고쳤으면 출처 표시(기상청/예보)는 그대로 두고, 날씨 값을 고쳤을 때만 "직접 수정"으로 표시
+  const orig = records.find(x=>x.id===f.dataset.id) || {};
+  const r10 = x => x==null ? null : Math.round(x*10)/10;
+  const origP = orig.psum!=null ? orig.psum : orig.rain;
+  if(patch.code!==orig.code || patch.cond!==orig.cond || r10(patch.tmax)!==r10(orig.tmax) || r10(patch.tmin)!==r10(orig.tmin) || r10(patch.psum)!==r10(origP)) patch.edited=true;
+  if(patch.tmax!=null && patch.tmin!=null && patch.tmax<patch.tmin){ setStatus("최고기온이 최저기온보다 낮아요. 숫자를 다시 확인해 주세요.", true); return; }
+  const btn=f.querySelector('button[type="submit"]'); btn.disabled=true; btn.textContent="저장 중…";
+  try{ editingId=null; await updateRecord(f.dataset.id, patch); renderList(); setStatus("기록을 고쳤어요."); }
+  catch(err){ editingId=f.dataset.id; btn.disabled=false; btn.textContent="저장"; setStatus("저장하지 못했어요. 잠시 후 다시 시도해 주세요.", true); }
+});
 $("list").addEventListener("click", async e=>{
+  if(e.target.closest(".edit")){ editingId=e.target.closest(".edit").dataset.id; renderList(); const el=$("ed-tmax"); if(el) el.focus({preventScroll:false}); return; }
+  if(e.target.closest(".editf .cancel")){ editingId=null; renderList(); return; }
   const b=e.target.closest(".del"); if(!b) return;
   if(!b.classList.contains("confirm")){
     b.classList.add("confirm"); b.textContent="정말 삭제";

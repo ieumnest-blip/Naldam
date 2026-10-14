@@ -160,6 +160,12 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .active{display:flex;flex-wrap:wrap;gap:6px;font-size:13px}
 .active span{background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-deep);border-radius:99px;padding:2px 10px}
 .foot .excel{background:var(--mint);border-color:var(--mint);color:#174a3e}
+.placebar{display:flex;gap:8px}
+.placebar input{flex:1;min-width:0}
+.res-note{font-size:13px;color:var(--muted);padding:4px 6px}
+.hint-s{font-size:12.5px;color:var(--muted);flex:1 1 180px}
+#nowBody .row{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px}
+#nowBody .row button{padding:10px 6px;font-size:14px;white-space:normal;line-height:1.25;min-width:0}
 /* month calendar forecast */
 .cal{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:12px 10px 14px;display:flex;flex-direction:column;gap:10px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -193,6 +199,8 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .cc.ext .ct b{opacity:.7}
 .cp{position:absolute;top:3px;right:4px;font-size:10px;color:#3a7bc8}
 .cc::after{content:"";position:absolute;top:6px;left:5px;width:5px;height:5px;border-radius:50%}
+.cc.past::after{background:#b9b4cf}
+.cc.past.past{background:var(--field)}
 .cc.kma::after{background:#3879b8} .cc.adj::after{background:#9cc3e8} .cc.rec::after{background:var(--accent)}
 .cal-detail{display:flex;gap:12px;align-items:flex-start;background:var(--field);border-radius:18px;padding:12px 14px}
 .ci.big{width:52px;height:52px;border-radius:16px;flex:none}
@@ -206,7 +214,7 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .srcl{font-size:11.5px;color:var(--muted)} .srcl.kma{color:#2f6fae} .srcl.rec{color:var(--accent-deep)}
 .cal-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:12px;color:var(--muted)}
 .lg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
-.lg.kma{background:#3879b8} .lg.adj{background:#9cc3e8} .lg.rec{background:var(--accent)} .lg.ext{border:1.5px dashed var(--muted);border-radius:3px}
+.lg.past{background:#b9b4cf} .lg.kma{background:#3879b8} .lg.adj{background:#9cc3e8} .lg.rec{background:var(--accent)} .lg.ext{border:1.5px dashed var(--muted);border-radius:3px}
 @media (max-width:380px){ .cc{min-height:76px} .ci{width:22px;height:22px} .ci svg{width:19px;height:19px} .ct b{font-size:11.5px} }
 /* stats */
 .stats{display:flex;flex-direction:column;gap:14px}
@@ -253,6 +261,7 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .srctag,.srcchip{font-size:11.5px;color:var(--muted);border:1.5px dashed var(--line);border-radius:99px;padding:0 8px}
 .srcchip{font-size:12px;padding:1px 10px}
 .srctag.kma,.srcchip.kma{color:#2f6fae;border-color:color-mix(in srgb,#3879b8 40%,transparent);border-style:solid}
+.srctag.memo{color:#a0607e;border-color:color-mix(in srgb,#e07aa0 45%,transparent);border-style:solid}
 .srctag.ed{color:#2f8f6f;border-color:color-mix(in srgb,#2f8f6f 45%,transparent);border-style:solid}
 .entry .edit{padding:2px 10px;font-size:12px;color:var(--muted);background:transparent;border-color:transparent}
 .entry.editing{grid-template-columns:56px 1fr;align-items:start}
@@ -267,7 +276,7 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .entry .t.hit{border-radius:10px;padding:0 4px}
 .hint{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:-4px}
 .hint .ex{font-size:12.5px;padding:3px 10px;border-width:1.5px}
-.entry .memo{margin-top:6px;font-size:14px;overflow-wrap:anywhere;background:var(--field);border-radius:4px 14px 14px 14px;padding:6px 10px;display:inline-block}
+.entry .memo{grid-column:1/-1;margin-top:8px;font-size:15px;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap;background:var(--field);border-radius:16px;padding:10px 14px;display:block}
 .entry .side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;align-self:start}
 .entry .t{font-family:var(--font-display);font-weight:700;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
 .entry[data-id]{position:relative;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .15s, box-shadow .15s}
@@ -348,16 +357,15 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
         <textarea id="memo" placeholder="오늘 날씨 한 줄 메모 (예: 아침엔 쌀쌀, 우산 챙김)" rows="2"></textarea>
         <div class="row">
           <button class="primary" id="saveBtn" type="button">이 날씨 기록하기</button>
+          <button id="locBtn" type="button">📍 내 위치</button>
           <button id="refreshBtn" type="button">새로고침</button>
         </div>
       </div>
     </div>
-    <div class="row" style="margin-top:12px">
-      <input id="cityInput" type="search" placeholder="다른 지역 검색 (예: 부산, 제주)" autocomplete="off">
-      <button id="cityBtn" type="button">찾기</button>
-      <button id="locBtn" type="button">내 위치</button>
+    <div class="row" id="noLocRow" hidden style="margin-top:10px">
+      <button id="locBtn2" type="button">📍 내 위치 다시 찾기</button>
+      <span class="hint-s">또는 아래 <b>예보</b> 탭에서 지역을 검색할 수 있어요.</span>
     </div>
-    <div class="results" id="cityResults"></div>
   </div>
 
 
@@ -368,6 +376,11 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
       <button type="button" role="tab" id="tabStats" aria-selected="false" aria-controls="paneStats">통계</button>
       <button type="button" role="tab" id="tabFc" aria-selected="false" aria-controls="paneFc">예보</button>
     </div>
+    <div class="placebar" id="placebar" hidden>
+      <input id="cityInput" type="search" placeholder="📍 지역 검색 (예: 대구, 제주)" autocomplete="off" aria-label="예보를 볼 지역 검색">
+      <button id="cityBtn" type="button">찾기</button>
+    </div>
+    <div class="results" id="cityResults"></div>
     <div class="migrate" id="migrate" hidden>
       <span id="migrateText"></span>
       <button id="migrateBtn" type="button">내 계정으로 옮기기</button>
@@ -388,7 +401,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
         <div class="adv-field"><select id="placeSel"><option value="">모든 지역</option></select></div>
       </div>
       <div class="adv-row"><span class="adv-label">기온</span>
-        <div class="adv-field adv-note">위 검색창에 입력해요 · <button type="button" class="ex">25도</button><button type="button" class="ex">최고 30 이상</button><button type="button" class="ex">최저 영하 3</button><button type="button" class="ex">20~25</button></div>
+        <div class="adv-field adv-note">위 검색창에 입력해요 · <button type="button" class="ex">25</button><button type="button" class="ex">6/21</button><button type="button" class="ex">최고 30 이상</button><button type="button" class="ex">최저 영하 3</button><button type="button" class="ex">최저 10 최고 20</button><button type="button" class="ex">20~25</button></div>
       </div>
       <div class="adv-foot"><button type="button" id="advReset">조건 모두 지우기</button></div>
     </div>
@@ -741,7 +754,7 @@ async function loadForecast(lat, lon, place){
   fcPlace = place || ""; fcLoading = true; if(activeTab==="fc") renderCalendar();
   const base = `latitude=${lat}&longitude=${lon}&timezone=auto`;
   const [om, ens] = await Promise.all([
-    fetch(`https://api.open-meteo.com/v1/forecast?${base}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&forecast_days=16`)
+    fetch(`https://api.open-meteo.com/v1/forecast?${base}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&forecast_days=16&past_days=${pastDaysToPrevMonth()}`)
       .then(r=>r.ok?r.json():null).catch(()=>null),
     fetch(`https://ensemble-api.open-meteo.com/v1/ensemble?${base}&models=gfs05&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=35`)
       .then(r=>r.ok?r.json():null).catch(()=>null)
@@ -754,6 +767,8 @@ async function loadForecast(lat, lon, place){
   if(activeTab==="fc") renderCalendar();
 }
 const ymd8 = s => s.replace(/-/g,"");
+// 지난달 1일부터 오늘까지 며칠 전인지 (지난 날씨를 그만큼 함께 받아요)
+function pastDaysToPrevMonth(){ const n=new Date(), first=new Date(n.getFullYear(), n.getMonth()-1, 1); return Math.min(92, Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-first)/864e5)); }
 function buildForecast(od, ed, kmaDays){
   const kma = {}; (kmaDays||[]).forEach(d=>{ if(!d.partial && d.tmax!=null && d.tmin!=null) kma[d.date]=d; });
   // 기상청과 겹치는 날로 보정값 계산 (최대 ±6°)
@@ -761,7 +776,15 @@ function buildForecast(od, ed, kmaDays){
   od.time.forEach((t,i)=>{ const k=kma[ymd8(t)]; if(k){ dx.push(k.tmax-od.temperature_2m_max[i]); dn.push(k.tmin-od.temperature_2m_min[i]); } });
   const clamp = v => Math.max(-6, Math.min(6, v));
   const bx = dx.length ? clamp(avg(dx)) : 0, bn = dn.length ? clamp(avg(dn)) : 0;
+  const todayStr = localDay(new Date());
+  const past = [];
   const days = od.time.map((t,i)=>{
+    if(t < todayStr){
+      const pr = od.precipitation_sum ? od.precipitation_sum[i] : null;
+      past.push({ date:t, tmax:od.temperature_2m_max[i]+bx, tmin:od.temperature_2m_min[i]+bn,
+        code:od.weather_code[i], cond:WMO[od.weather_code[i]]||"", pop:null, rain:pr, src:"past" });
+      return null;
+    }
     const k = kma[ymd8(t)];
     if(k){
       const kc = kmaCond(k.pty, k.sky) || [od.weather_code[i], WMO[od.weather_code[i]]||""];
@@ -770,7 +793,7 @@ function buildForecast(od, ed, kmaDays){
     return { date:t, tmax:od.temperature_2m_max[i]+bx, tmin:od.temperature_2m_min[i]+bn,
              code:od.weather_code[i], cond:WMO[od.weather_code[i]]||"", pop:od.precipitation_probability_max ? od.precipitation_probability_max[i] : null,
              src: dx.length ? "adj" : "om" };
-  });
+  }).filter(Boolean);
   // 17일 이후: 앙상블 평균(참고용)
   const ext = [];
   if(ed && ed.time){
@@ -787,17 +810,22 @@ function buildForecast(od, ed, kmaDays){
                  code: wet!=null && wet>=0.5 ? 61 : null, cond: wet!=null && wet>=0.5 ? "비 가능성" : "", src:"ext" });
     });
   }
-  return { days, ext, bias:{bx,bn,used:dx.length} };
+  return { days, ext, past, bias:{bx,bn,used:dx.length} };
 }
 function md(t, withDay){ const [y,m,d]=t.split("-").map(Number); const w=new Date(y,m-1,d).getDay(); return withDay ? `${m}.${d} (${WD[w]})` : `${m}.${d}`; }
-const SRC_LABEL = { kma:"기상청 예보", adj:"기상청에 맞춰 보정한 예보", om:"Open-Meteo 예보", ext:"장기 경향(참고용)", rec:"내 기록" };
+const SRC_LABEL = { past:"지난 날씨 (예보 모델 분석값, 보정)", kma:"기상청 예보", adj:"기상청에 맞춰 보정한 예보", om:"Open-Meteo 예보", ext:"장기 경향(참고용)", rec:"내 기록" };
 function calInfo(){
   const today=localDay(new Date()), info={};
   // 내 기록: 날짜별 가장 늦게 기록한 것
   const recs={}; records.forEach(r=>{ const d=dayKey(r); if(!recs[d] || r.at>recs[d].at) recs[d]=r; });
   Object.values(recs).forEach(r=>{ const d=dayKey(r);
-    info[d]={ date:d, tmax:r.tmax!=null?r.tmax:r.temp, tmin:r.tmin!=null?r.tmin:r.temp, code:r.code, cond:r.cond, pop:null, src:"rec", memo:r.memo||"" }; });
-  if(fcData){ [...fcData.days, ...fcData.ext].forEach(d=>{ if(d.date>=today) info[d.date]={...d, memo: info[d.date] && info[d.date].memo || ""}; }); }
+    const hx=r.tmax!=null?r.tmax:r.temp, lx=r.tmin!=null?r.tmin:r.temp;
+    if(hx==null && lx==null) return;
+    info[d]={ date:d, tmax:hx!=null?hx:lx, tmin:lx!=null?lx:hx, code:r.code, cond:r.cond, pop:null, src:"rec", memo:r.memo||"" }; });
+  if(fcData){
+    [...fcData.days, ...fcData.ext].forEach(d=>{ if(d.date>=today) info[d.date]={...d, memo: info[d.date] && info[d.date].memo || ""}; });
+    (fcData.past||[]).forEach(d=>{ if(!info[d.date]) info[d.date]={...d, memo:""}; });   // 내 기록이 없는 지난 날만
+  }
   return {info, today};
 }
 function renderCalendar(){
@@ -818,14 +846,14 @@ function renderCalendar(){
     const cls=["cc", w===0?"sun":w===6?"sat":"", key===today?"today":"", key<today?"past":"", x?x.src:"none", key===calSel?"on":""].join(" ");
     const ic = x && x.code!=null ? `<span class="ci k-${kindOf(x.code)}">${weatherIcon(kindOf(x.code))}</span>` : `<span class="ci noic">${x && x.src==="ext" ? "≈" : ""}</span>`;
     const tt = x ? `<span class="ct"><b class="hi">${Math.round(x.tmax)}°</b><b class="lo">${Math.round(x.tmin)}°</b></span>` : `<span class="ct"></span>`;
-    cells+=`<button type="button" class="${cls}" data-d="${key}" aria-label="${m+1}월 ${d}일${x?` ${x.cond||""} 최고 ${Math.round(x.tmax)}도 최저 ${Math.round(x.tmin)}도`:""}"><span class="cd">${d}</span>${ic}${tt}${x&&x.pop!=null&&x.pop>=50&&x.src!=="rec"?`<span class="cp">☂</span>`:""}</button>`;
+    cells+=`<button type="button" class="${cls}" data-d="${key}" aria-label="${m+1}월 ${d}일${x?` ${x.cond||""} 최고 ${Math.round(x.tmax)}도 최저 ${Math.round(x.tmin)}도`:""}"><span class="cd">${d}</span>${ic}${tt}${x&&x.src!=="rec"&&((x.pop!=null&&x.pop>=50)||(x.rain!=null&&x.rain>=1))?`<span class="cp">☂</span>`:""}</button>`;
   }
   const sel=info[calSel];
   const [sy,sm,sd]=calSel.split("-").map(Number), sw=WD[new Date(sy,sm-1,sd).getDay()];
   const detail = sel ? `<div class="cal-detail">
       <span class="ci big k-${sel.code!=null?kindOf(sel.code):"cloud"}">${sel.code!=null?weatherIcon(kindOf(sel.code)):""}</span>
       <div class="cdt"><b>${sm}월 ${sd}일 (${sw})${calSel===today?" · 오늘":""}</b>
-        <span>${esc(sel.cond||"")}${sel.pop!=null&&sel.src!=="rec"?` · 비 올 확률 ${sel.pop}%`:""}</span>
+        <span>${esc(sel.cond||"")}${sel.pop!=null&&sel.src!=="rec"?` · 비 올 확률 ${sel.pop}%`:""}${sel.rain!=null&&sel.rain>0?` · 강수 ${Math.round(sel.rain*10)/10}mm`:""}</span>
         <span class="lohi"><em class="lo">최저 ${Math.round(sel.tmin)}°</em><em class="hi">최고 ${Math.round(sel.tmax)}°</em></span>
         ${sel.memo?`<span class="memo">${esc(sel.memo)}</span>`:""}
         <small class="srcl ${sel.src}">${SRC_LABEL[sel.src]||""}</small></div></div>`
@@ -840,7 +868,7 @@ function renderCalendar(){
     ${status}
     <div class="cal-grid" role="grid">${WD.map((w,i)=>`<span class="cw ${i===0?"sun":i===6?"sat":""}">${w}</span>`).join("")}${cells}</div>
     ${detail}
-    <div class="cal-legend"><span><i class="lg kma"></i>기상청</span><span><i class="lg adj"></i>보정 예보</span><span><i class="lg ext"></i>경향(참고)</span><span><i class="lg rec"></i>내 기록</span></div>
+    <div class="cal-legend"><span><i class="lg kma"></i>기상청</span><span><i class="lg adj"></i>보정 예보</span><span><i class="lg ext"></i>경향(참고)</span><span><i class="lg rec"></i>내 기록</span><span><i class="lg past"></i>지난 날씨</span></div>
   </div>`;
   $("calPrev").onclick=()=>{ calMonth=new Date(y,m-1,1); renderCalendar(); };
   $("calNext").onclick=()=>{ calMonth=new Date(y,m+1,1); renderCalendar(); };
@@ -848,7 +876,7 @@ function renderCalendar(){
 }
 
 function renderNow(){
-  const c=current; $("nowBody").hidden=false;
+  const c=current; $("nowBody").hidden=false; $("noLocRow").hidden=true;
   $("placeName").textContent=c.place;
   $("obsTime").textContent=fmtDate(new Date().toISOString());
   $("temp").innerHTML=`${Math.round(c.temp*10)/10}<small>℃</small>`;
@@ -872,26 +900,33 @@ function locate(){
   setStatus("현재 위치를 확인하는 중…");
   navigator.geolocation.getCurrentPosition(
     p => fetchWeather(p.coords.latitude, p.coords.longitude),
-    err => setStatus(err.code===1
-      ? "위치 권한이 꺼져 있어요. 브라우저 설정에서 위치를 허용하거나, 아래에서 지역을 검색해 주세요."
-      : "위치를 찾지 못했어요. 잠시 후 '내 위치'를 다시 누르거나 지역을 검색해 주세요.", true),
+    err => { $("noLocRow").hidden = !$("nowBody").hidden; setStatus(err.code===1
+      ? "위치 권한이 꺼져 있어요. 브라우저 설정에서 위치를 허용하거나, 아래 예보 탭에서 지역을 검색해 주세요."
+      : "위치를 찾지 못했어요. 잠시 후 '내 위치'를 다시 누르거나 예보 탭에서 지역을 검색해 주세요.", true); },
     {enableHighAccuracy:false, timeout:12000, maximumAge:300000}
   );
 }
 async function searchCity(){
   const q=$("cityInput").value.trim(); const box=$("cityResults"); box.innerHTML="";
   if(!q) return;
+  box.innerHTML=`<div class="res-note">찾는 중…</div>`;
+  // 한국 지명은 "대구"보다 "대구광역시"로 더 잘 찾아져서, 몇 가지 이름을 함께 검색해요
+  const names=[q]; if(/^[가-힣]{1,4}$/.test(q)) names.push(q+"광역시", q+"시", q+"특별시", q+"군");
   try{
-    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=ko`);
-    const j = await r.json();
-    if(!j.results || !j.results.length){ box.textContent="검색 결과가 없어요. 다른 이름으로 찾아보세요."; return; }
-    j.results.forEach(p=>{
+    const all = await Promise.all(names.map(n=>fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(n)}&count=10&language=ko`).then(r=>r.json()).catch(()=>({}))));
+    const seen=new Set(), list=[];
+    all.forEach(j=>(j.results||[]).forEach(p=>{ if(!seen.has(p.id)){ seen.add(p.id); list.push(p); } }));
+    list.sort((a,b)=> (b.country_code==="KR")-(a.country_code==="KR") || (b.population||0)-(a.population||0));
+    box.innerHTML="";
+    if(!list.length){ box.innerHTML=`<div class="res-note">검색 결과가 없어요. 다른 이름으로 찾아보세요.</div>`; return; }
+    list.slice(0,6).forEach(p=>{
       const b=document.createElement("button"); b.type="button";
-      b.textContent=[p.name, p.admin1, p.country].filter(Boolean).join(", ");
-      b.onclick=()=>{ box.innerHTML=""; $("cityInput").value=""; fetchWeather(p.latitude, p.longitude, [p.admin1,p.name].filter(Boolean).join(" ")); };
+      b.textContent=[p.name, p.admin2, p.admin1, p.country_code==="KR"?null:p.country].filter((v,i,a)=>v && a.indexOf(v)===i).join(", ");
+      b.onclick=()=>{ box.innerHTML=""; $("cityInput").value=""; calMonth=null; calSel=null;
+        fetchWeather(p.latitude, p.longitude, [p.admin1,p.name].filter((v,i,a)=>v && a.indexOf(v)===i).join(" ")); };
       box.appendChild(b);
     });
-  }catch(e){ box.textContent="지역을 검색하지 못했어요. 인터넷 연결을 확인해 주세요."; }
+  }catch(e){ box.innerHTML=`<div class="res-note">지역을 검색하지 못했어요. 인터넷 연결을 확인해 주세요.</div>`; }
 }
 
 /* ---------- save ---------- */
@@ -930,7 +965,17 @@ function parseTempQuery(str){
   const rest = (str.slice(0,m.index)+" "+str.slice(m.index+m[0].length)).replace(/\s+/g," ").trim();
   return {field, op, a, b, rest};
 }
+// 여러 조건을 한 번에: "최저 11 최고 21", "최고 25 이상 최저 10 이하" 등 (모두 만족하는 기록만)
+function parseTempAll(str){
+  const conds=[]; let rest=str, c;
+  while(rest && (c=parseTempQuery(rest)) && conds.length<4){ conds.push(c); rest=c.rest; }
+  return conds.length ? {conds, rest} : null;
+}
 function tempHits(r,tq){
+  if(tq.conds){ const all=new Set(); for(const c of tq.conds){ const h=tempHitsOne(r,c); if(!h.size) return new Set(); h.forEach(x=>all.add(x)); } return all; }
+  return tempHitsOne(r,tq);
+}
+function tempHitsOne(r,tq){
   const vals = {now:r.temp, max:r.tmax, min:r.tmin};
   const keys = tq.field==="any" ? ["now","max","min"] : [tq.field];
   const lo = tq.op==="range" ? Math.min(tq.a,tq.b) : null, hi = tq.op==="range" ? Math.max(tq.a,tq.b) : null;
@@ -965,8 +1010,13 @@ const KIND_TEST = {
 const KIND_LABEL = {clear:"맑은 날", cloudy:"흐린 날", wet:"비 온 날", snow:"눈 온 날", storm:"뇌우"};
 function selectedKinds(){ return [...$("kinds").querySelectorAll('button[aria-pressed="true"]')].map(b=>b.dataset.k); }
 function filterRecords(){
-  const raw=$("q").value.trim();
-  const tq=parseTempQuery(raw), q=tq?tq.rest:raw, tl=q.toLowerCase();
+  let raw=$("q").value.trim();
+  // 날짜 검색: 6/21, 6.21, 6월 21일, 2025-06-21, 2025.6.21
+  const dq=[]; raw=raw.replace(/(?:(20\d{2})\s*[.\-/년]\s*)?(\d{1,2})\s*(?:[./]|월\s*)(\d{1,2})\s*일?/g,(m0,y,mo,da)=>{
+    if(+mo<1||+mo>12||+da<1||+da>31) return m0;
+    dq.push((y?y+"-":"")+String(mo).padStart(2,"0")+"-"+String(da).padStart(2,"0")); return " "; }).trim();
+  const numOnly = /^[\d\s.\-~]+$/.test(raw) && /\d/.test(raw);
+  const tq=parseTempAll(raw), q=tq?tq.rest:raw, tl=q.toLowerCase();
   const from=$("from").value, to=$("to").value, place=$("placeSel").value, kinds=selectedKinds();
   // 비/눈은 그날 한 번이라도 왔으면 그날 기록 전체를 포함
   const dayFlags = {};
@@ -977,10 +1027,15 @@ function filterRecords(){
     if(to && d>to) return false;
     if(place && r.place!==place) return false;
     if(kinds.length && !(dayFlags[d] && dayFlags[d].size)) return false;
+    if(dq.length && !dq.some(x=> x.length===10 ? d===x : d.slice(5)===x)) return false;
+    const text=[r.place,r.cond,r.memo].join(" ").toLowerCase();
+    // 숫자만 입력하면: 기온(기록·최고·최저) 중 하나가 같거나, 메모 등 글자 속에 그 숫자가 있으면 찾아요
+    if(numOnly) return (tq && tempHits(r,tq).size>0) || text.includes(raw.toLowerCase());
     if(tq && !tempHits(r,tq).size) return false;
-    return !tl || [r.place,r.cond,r.memo].join(" ").toLowerCase().includes(tl);
+    return !tl || text.includes(tl);
   });
-  return {shown, tq, q};
+  filterRecords.lastDq = dq;
+  return {shown, tq, q, dq};
 }
 function fillPlaces(){
   const sel=$("placeSel"), cur=sel.value;
@@ -994,8 +1049,9 @@ function renderActive(tq){
   if(from||to) tags.push(`${from?from.replace(/-/g,"."):"처음"} ~ ${to?to.replace(/-/g,"."):"오늘"}`);
   if($("placeSel").value) tags.push($("placeSel").value);
   selectedKinds().forEach(k=>tags.push(KIND_LABEL[k]));
-  if(tq){ const f={any:"기온",max:"최고",min:"최저",now:"기록 기온"}[tq.field];
-    const v = tq.op==="range" ? `${tq.a}~${tq.b}°` : `${tq.a}°${{eq:"",ge:" 이상",le:" 이하",gt:" 초과",lt:" 미만"}[tq.op]}`; tags.push(`${f} ${v}`); }
+  (filterRecords.lastDq||[]).forEach(x=>tags.push(x.length===10?x.replace(/-/g,"."):(+x.slice(0,2))+"월 "+(+x.slice(3))+"일"));
+  if(tq) tq.conds.forEach(c=>{ const f={any:"기온",max:"최고",min:"최저",now:"기록 기온"}[c.field];
+    const v = c.op==="range" ? `${c.a}~${c.b}°` : `${c.a}°${{eq:"",ge:" 이상",le:" 이하",gt:" 초과",lt:" 미만"}[c.op]}`; tags.push(`${f} ${v}`); });
   const n = (from||to?1:0) + ($("placeSel").value?1:0) + selectedKinds().length;
   $("advCount").hidden = !n; $("advCount").textContent = n;
   $("active").hidden = !tags.length;
@@ -1010,6 +1066,7 @@ function setTab(t){
   $("paneStats").hidden = t!=="stats";
   $("paneFc").hidden = t!=="fc";
   document.querySelector("section .filters").hidden = t==="fc";
+  $("placebar").hidden = t!=="fc"; if(t!=="fc") $("cityResults").innerHTML="";
   document.querySelector(".tip-press").hidden = t!=="diary";
   if(t==="fc"){ $("adv").hidden=true; $("advBtn").setAttribute("aria-expanded","false"); $("active").hidden=true; renderCalendar(); }
   else renderList();
@@ -1021,11 +1078,13 @@ const r1 = v => v==null ? null : Math.round(v*10)/10;
 function summarizeDays(list){
   const days={};
   for(const r of list){
+    const hiV = r.tmax!=null ? r.tmax : r.temp, loV = r.tmin!=null ? r.tmin : r.temp;
+    if(hiV==null && loV==null && r.temp==null) continue;   // 기온이 하나도 없는 기록은 통계에서 빼요
     const k=dayKey(r);
     const d = days[k] ||= {day:k, temps:[], hi:-Infinity, lo:Infinity, wet:false, snow:false, rain:0, recs:0};
-    d.recs++; d.temps.push(r.temp);
-    d.hi = Math.max(d.hi, r.tmax!=null ? r.tmax : r.temp);
-    d.lo = Math.min(d.lo, r.tmin!=null ? r.tmin : r.temp);
+    d.recs++; if(r.temp!=null) d.temps.push(r.temp); else if(hiV!=null&&loV!=null) d.temps.push((hiV+loV)/2);
+    if(hiV!=null) d.hi = Math.max(d.hi, hiV); if(loV!=null) d.lo = Math.min(d.lo, loV);
+    if(d.hi===-Infinity) d.hi=d.lo; if(d.lo===Infinity) d.lo=d.hi;
     d.wet ||= isWet(r); d.snow ||= kindOf(r.code)==="snow";
     d.rain = Math.max(d.rain, precip(r));
   }
@@ -1203,14 +1262,14 @@ function renderList(){
       <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
-        <div class="chips">${(r.tmax!=null&&r.tmin!=null)?`<span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span>`:""}<span class="srctag ${r.edited?"ed":r.src==="kma"?"kma":""}">${r.edited?"직접 수정":r.src==="kma"?"기상청":"예보 기준"}</span></div>
-        <div class="meta">${fmtDate(r.at)}${(r.psum??r.rain)>0?` · 강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:""} · 습도 ${r.hum}% · ${dirName(r.windDir)} ${Number(r.wind).toFixed(1)}m/s</div>
-        ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
+        <div class="chips">${(r.tmax!=null&&r.tmin!=null)?`<span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span>`:""}<span class="srctag ${r.edited?"ed":r.src==="kma"?"kma":r.src==="memo"?"memo":""}">${r.edited?"직접 수정":r.src==="kma"?"기상청":r.src==="memo"?"옛 메모":"예보 기준"}</span></div>
+        <div class="meta">${[r.src==="memo"?fmtDate(r.at).slice(0,10):fmtDate(r.at), (r.psum??r.rain)>0?`강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:"", r.hum!=null?`습도 ${r.hum}%`:"", r.wind!=null?`${r.windDir!=null?dirName(r.windDir)+" ":""}${Number(r.wind).toFixed(1)}m/s`:""].filter(Boolean).join(" · ")}</div>
       </div>
       <div class="side">
-        <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${Math.round(r.temp)}°</div>
+        <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${r.temp!=null?Math.round(r.temp)+"°":"–"}</div>
         <button class="edit" type="button" data-id="${esc(r.id)}">✎ 수정</button>
       </div>
+      ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
     </div>`).join("");
   const f=list.querySelector(".editf"); if(f && !f.dataset.focused){ f.dataset.focused="1"; }
 }
@@ -1339,6 +1398,7 @@ $("importFile").onchange=async e=>{
 $("saveBtn").onclick=saveRecord;
 $("refreshBtn").onclick=()=>current && fetchWeather(current.lat, current.lon, current.place);
 $("locBtn").onclick=locate;
+$("locBtn2").onclick=locate;
 $("cityBtn").onclick=searchCity;
 $("cityInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); searchCity(); } });
 $("q").addEventListener("input", renderList);

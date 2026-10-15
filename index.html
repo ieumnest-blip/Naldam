@@ -145,6 +145,17 @@ section{display:flex;flex-direction:column;gap:12px}
 .tabs button{border:0;background:transparent;padding:6px 18px;font-size:15px}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg)}
 .tabs button:hover{transform:none}
+.tabrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tabedit{font-size:13px;padding:6px 12px;background:transparent;color:var(--muted)}
+.tabedit[aria-pressed="true"]{color:var(--accent-deep);border-color:var(--accent)}
+.tabs.editing{outline:2px dashed var(--accent);outline-offset:3px}
+.tabs.editing button{display:inline-flex;align-items:center;gap:2px;padding:6px 6px;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.tabs .mv{display:none;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-size:15px;line-height:1;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent-deep)}
+.tabs.editing .mv{display:inline-flex}
+.tabs.editing button.dragging{opacity:.55;transform:scale(1.06)}
+.tabhint{margin:0;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.tabhint b{color:var(--accent-deep)}
+.tabhint button{font-size:12.5px;padding:4px 12px}
 .adv{background:var(--surface);border-radius:22px;padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
 .adv-row{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:start}
 .adv-label{font-family:var(--font-display);font-weight:700;font-size:14px;padding-top:7px}
@@ -373,11 +384,15 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
 
   <section>
     <div class="sechead"><h2>날씨 일기장</h2><span class="count" id="count"></span></div>
-    <div class="tabs" role="tablist" aria-label="일기장 보기">
-      <button type="button" role="tab" id="tabDiary" aria-selected="true" aria-controls="paneDiary">기록</button>
-      <button type="button" role="tab" id="tabStats" aria-selected="false" aria-controls="paneStats">통계</button>
-      <button type="button" role="tab" id="tabFc" aria-selected="false" aria-controls="paneFc">예보</button>
+    <div class="tabrow">
+      <div class="tabs" id="tabs" role="tablist" aria-label="일기장 보기">
+        <button type="button" role="tab" id="tabDiary" data-tab="diary" aria-selected="true" aria-controls="paneDiary">기록</button>
+        <button type="button" role="tab" id="tabStats" data-tab="stats" aria-selected="false" aria-controls="paneStats">통계</button>
+        <button type="button" role="tab" id="tabFc" data-tab="fc" aria-selected="false" aria-controls="paneFc">예보</button>
+      </div>
+      <button type="button" class="tabedit" id="tabEditBtn" aria-pressed="false" title="탭 순서 바꾸기">⇄ 순서</button>
     </div>
+    <p class="tabhint" id="tabHint" hidden>탭을 <b>끌어서</b> 옮기거나 ‹ › 를 눌러 순서를 바꿔요. 맨 앞 탭이 앱을 열 때 먼저 보여요.</p>
     <div class="placebar" id="placebar" hidden>
       <input id="cityInput" type="search" placeholder="📍 지역 검색 (예: 대구, 제주)" autocomplete="off" aria-label="예보를 볼 지역 검색">
       <button id="cityBtn" type="button">찾기</button>
@@ -1427,11 +1442,63 @@ $("advReset").onclick=()=>{ $("from").value=""; $("to").value=""; $("placeSel").
 $("tabDiary").onclick=()=>setTab("diary");
 $("tabStats").onclick=()=>setTab("stats");
 $("tabFc").onclick=()=>setTab("fc");
+
+/* ---------- 탭 순서 바꾸기 (이 기기에 저장) ---------- */
+const TAB_KEY="naldam-tab-order";
+const TAB_LABEL={diary:"기록",stats:"통계",fc:"예보"};
+function loadTabOrder(){ try{ const o=JSON.parse(localStorage.getItem(TAB_KEY)); if(Array.isArray(o)&&o.length===3&&["diary","stats","fc"].every(t=>o.includes(t))) return o; }catch(e){} return ["diary","stats","fc"]; }
+function saveTabOrder(){ try{ localStorage.setItem(TAB_KEY, JSON.stringify([...$("tabs").children].map(b=>b.dataset.tab))); }catch(e){} }
+function paintTabs(){
+  const editing=$("tabs").classList.contains("editing");
+  [...$("tabs").children].forEach((b,i,arr)=>{
+    b.innerHTML = editing
+      ? `${i>0?`<span class="mv" data-mv="-1" aria-label="앞으로">‹</span>`:""}${TAB_LABEL[b.dataset.tab]}${i<arr.length-1?`<span class="mv" data-mv="1" aria-label="뒤로">›</span>`:""}`
+      : TAB_LABEL[b.dataset.tab];
+  });
+}
+function applyTabOrder(order){ order.forEach(t=>$("tabs").appendChild($("tabs").querySelector(`[data-tab="${t}"]`))); paintTabs(); }
+function setTabEdit(on){
+  $("tabs").classList.toggle("editing",on); $("tabEditBtn").setAttribute("aria-pressed",String(on));
+  $("tabEditBtn").textContent = on ? "✓ 완료" : "⇄ 순서"; $("tabHint").hidden=!on; paintTabs();
+  if(!on) saveTabOrder();
+}
+$("tabEditBtn").onclick=()=>setTabEdit(!$("tabs").classList.contains("editing"));
+// 편집 중에는 탭을 눌러도 화면이 바뀌지 않고, ‹ › 로 한 칸씩 옮겨요
+$("tabs").addEventListener("click",e=>{
+  if(!$("tabs").classList.contains("editing")) return;
+  e.stopPropagation(); e.preventDefault();
+  const mv=e.target.closest(".mv"); if(!mv) return;
+  const b=mv.closest("button"), d=+mv.dataset.mv;
+  if(d<0 && b.previousElementSibling) $("tabs").insertBefore(b,b.previousElementSibling);
+  if(d>0 && b.nextElementSibling) $("tabs").insertBefore(b.nextElementSibling,b);
+  paintTabs(); saveTabOrder();
+},true);
+// 끌어서 옮기기 (손가락/마우스)
+let dragTab=null;
+$("tabs").addEventListener("pointerdown",e=>{
+  if(!$("tabs").classList.contains("editing") || e.target.closest(".mv")) return;
+  const b=e.target.closest("button"); if(!b) return;
+  dragTab=b; b.classList.add("dragging"); b.setPointerCapture(e.pointerId);
+});
+$("tabs").addEventListener("pointermove",e=>{
+  if(!dragTab) return;
+  for(const o of $("tabs").children){
+    if(o===dragTab) continue;
+    const r=o.getBoundingClientRect();
+    if(e.clientX>r.left && e.clientX<r.right){
+      if(e.clientX < r.left+r.width/2) $("tabs").insertBefore(dragTab,o); else $("tabs").insertBefore(dragTab,o.nextSibling);
+      paintTabs(); break;
+    }
+  }
+});
+const endDrag=()=>{ if(!dragTab) return; dragTab.classList.remove("dragging"); dragTab=null; saveTabOrder(); };
+$("tabs").addEventListener("pointerup",endDrag); $("tabs").addEventListener("pointercancel",endDrag);
+const tabOrder0=loadTabOrder(); applyTabOrder(tabOrder0);
 $("excelBtn").onclick=exportExcel;
 
 if(!cloudEnabled) records = loadLocal();
 renderAccount();
-renderList();
+if(tabOrder0[0]!=="diary") setTab(tabOrder0[0]); else renderList();
 locate();
 if(cloudEnabled) initCloud();
 </script>

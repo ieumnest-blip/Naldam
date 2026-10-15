@@ -134,7 +134,9 @@ button:disabled{opacity:.55;cursor:default;transform:none}
 section{display:flex;flex-direction:column;gap:12px}
 .sechead{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .sechead h2{font-family:var(--font-display);font-weight:700;font-size:21px;margin:0}
-.filters{display:grid;grid-template-columns:1fr auto;gap:8px}
+.filters{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px}
+#qField{width:auto;padding:8px 26px 8px 12px;border-radius:16px;font-family:var(--font-display);font-weight:700}
+#qField.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 #advBtn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 #advBtn[aria-expanded="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 .badge{min-width:20px;height:20px;border-radius:99px;background:var(--accent-deep);color:#fff;font-size:12px;display:inline-grid;place-items:center;padding:0 6px}
@@ -386,6 +388,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
       <button id="migrateBtn" type="button">내 계정으로 옮기기</button>
     </div>
     <div class="filters">
+      <select id="qField" aria-label="기온 검색 기준"><option value="">전체</option><option value="최고">최고</option><option value="최저">최저</option></select>
       <input id="q" type="search" placeholder="지역·날씨·메모·기온으로 검색" autocomplete="off">
       <button type="button" id="advBtn" aria-expanded="false" aria-controls="adv">조건 검색<span class="badge" id="advCount" hidden></span></button>
     </div>
@@ -1011,6 +1014,10 @@ const KIND_LABEL = {clear:"맑은 날", cloudy:"흐린 날", wet:"비 온 날", 
 function selectedKinds(){ return [...$("kinds").querySelectorAll('button[aria-pressed="true"]')].map(b=>b.dataset.k); }
 function filterRecords(){
   let raw=$("q").value.trim();
+  // 왼쪽에서 최고/최저를 고르면, 숫자는 그 기온으로만 찾아요 (예: 최고 + "25" → 최고 25)
+  const qf=$("qField").value;
+  $("qField").classList.toggle("on", !!qf);
+  if(qf && /\d/.test(raw) && !/최고|최저|현재|지금/.test(raw)) raw = raw.replace(/(영하\s*)?-?\d+(?:\.\d+)?\s*(?:도|°)?(?:\s*~\s*(?:영하\s*)?-?\d+(?:\.\d+)?\s*(?:도|°)?)?(?:\s*(?:이상|이하|미만|초과|넘게))?/, m=>qf+" "+m);
   // 날짜 검색: 6/21, 6.21, 6월 21일, 2025-06-21, 2025.6.21
   const dq=[]; raw=raw.replace(/(?:(20\d{2})\s*[.\-/년]\s*)?(\d{1,2})\s*(?:[./]|월\s*)(\d{1,2})\s*일?/g,(m0,y,mo,da)=>{
     if(+mo<1||+mo>12||+da<1||+da>31) return m0;
@@ -1030,7 +1037,7 @@ function filterRecords(){
     if(dq.length && !dq.some(x=> x.length===10 ? d===x : d.slice(5)===x)) return false;
     const text=[r.place,r.cond,r.memo].join(" ").toLowerCase();
     // 숫자만 입력하면: 기온(기록·최고·최저) 중 하나가 같거나, 메모 등 글자 속에 그 숫자가 있으면 찾아요
-    if(numOnly) return (tq && tempHits(r,tq).size>0) || text.includes(raw.toLowerCase());
+    if(numOnly && !qf) return (tq && tempHits(r,tq).size>0) || text.includes(raw.toLowerCase());
     if(tq && !tempHits(r,tq).size) return false;
     return !tl || text.includes(tl);
   });
@@ -1402,6 +1409,7 @@ $("locBtn2").onclick=locate;
 $("cityBtn").onclick=searchCity;
 $("cityInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); searchCity(); } });
 $("q").addEventListener("input", renderList);
+$("qField").addEventListener("change", ()=>{ renderList(); $("q").focus(); });
 ["from","to","placeSel"].forEach(id=>$(id).addEventListener("change", renderList));
 $("advBtn").onclick=()=>{ const open=$("adv").hidden; $("adv").hidden=!open; $("advBtn").setAttribute("aria-expanded", String(open)); if(open) fillPlaces(); };
 $("kinds").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed")!=="true")); renderList(); });
@@ -1414,7 +1422,7 @@ $("quick").addEventListener("click", e=>{
   else { from=new Date(now); from.setDate(now.getDate()-Number(b.dataset.q)+1); }
   $("from").value=iso(from); $("to").value=iso(now); renderList();
 });
-$("advReset").onclick=()=>{ $("from").value=""; $("to").value=""; $("placeSel").value=""; $("q").value="";
+$("advReset").onclick=()=>{ $("from").value=""; $("to").value=""; $("placeSel").value=""; $("q").value=""; $("qField").value="";
   $("kinds").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed","false")); renderList(); };
 $("tabDiary").onclick=()=>setTab("diary");
 $("tabStats").onclick=()=>setTab("stats");

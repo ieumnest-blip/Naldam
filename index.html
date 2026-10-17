@@ -108,7 +108,7 @@ header p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
 .grid div{display:flex;flex-direction:column;align-items:center;min-width:0;text-align:center;
   background:color-mix(in srgb,var(--surface) 72%,transparent);border-radius:16px;padding:8px 4px}
 .grid .label{font-size:11.5px;color:var(--muted)}
-.grid b{font-family:var(--font-display);font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;line-height:1.25}
+.grid b{font-family:var(--font-display);font-weight:700;font-size:clamp(13px,4vw,16px);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.25}
 .grid b small{display:block;font-size:12px;color:var(--muted)}
 .status{font-size:14px;color:var(--muted);background:color-mix(in srgb,var(--surface) 70%,transparent);border-radius:14px;padding:10px 12px}
 .status.err{color:var(--danger)}
@@ -142,11 +142,11 @@ section{display:flex;flex-direction:column;gap:12px}
 .badge{min-width:20px;height:20px;border-radius:99px;background:var(--accent-deep);color:#fff;font-size:12px;display:inline-grid;place-items:center;padding:0 6px}
 #advBtn[aria-expanded="true"] .badge{background:var(--surface);color:var(--accent-deep)}
 .tabs{display:flex;gap:4px;background:var(--surface);border-radius:99px;padding:4px;align-self:flex-start;box-shadow:var(--shadow)}
-.tabs button{border:0;background:transparent;padding:6px 18px;font-size:15px}
+.tabs button{border:0;background:transparent;padding:6px clamp(10px,3.6vw,18px);font-size:clamp(13px,3.9vw,15px);white-space:nowrap}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg)}
 .tabs button:hover{transform:none}
-.tabrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tabedit{font-size:13px;padding:6px 12px;background:transparent;color:var(--muted)}
+.tabrow{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0}
+.tabedit{font-size:clamp(11.5px,3.4vw,13px);padding:6px 10px;background:transparent;color:var(--muted);white-space:nowrap;flex:none}
 .tabedit[aria-pressed="true"]{color:var(--accent-deep);border-color:var(--accent)}
 .tabs.editing{outline:2px dashed var(--accent);outline-offset:3px}
 .tabs.editing button{display:inline-flex;align-items:center;gap:2px;padding:6px 6px;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
@@ -173,12 +173,21 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .active{display:flex;flex-wrap:wrap;gap:6px;font-size:13px}
 .active span{background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-deep);border-radius:99px;padding:2px 10px}
 .foot .excel{background:var(--mint);border-color:var(--mint);color:#174a3e}
+.daypick{display:inline-flex;align-self:flex-start;gap:4px;padding:4px;border-radius:999px;background:color-mix(in srgb,var(--surface) 75%,transparent)}
+.daypick button{border:0;box-shadow:none;background:transparent;padding:6px 14px;font-size:13.5px;color:var(--muted);border-radius:999px}
+.daypick button.on{background:var(--surface);color:var(--fg);font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.temp.two{font-size:clamp(28px,9vw,46px);white-space:nowrap;padding:.12em 0}
+.temp .thi{color:#d4475a}
+.temp .tsep{color:var(--muted);font-size:.6em;margin:0 .12em}
+.temp .tlo{color:#3a7bc8}
+.srcchip.past{color:#7a6fb0;border-color:color-mix(in srgb,#9a8fd0 55%,transparent)}
+.srctag.past{color:#7a6fb0;border-color:color-mix(in srgb,#9a8fd0 50%,transparent);border-style:solid}
 .placebar{display:flex;gap:8px}
 .placebar input{flex:1;min-width:0}
 .res-note{font-size:13px;color:var(--muted);padding:4px 6px}
 .hint-s{font-size:12.5px;color:var(--muted);flex:1 1 180px}
 #nowBody .row{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px}
-#nowBody .row button{padding:10px 6px;font-size:14px;white-space:normal;line-height:1.25;min-width:0}
+#nowBody .row button{padding:10px 4px;font-size:clamp(12px,3.6vw,14px);white-space:nowrap;line-height:1.25;min-width:0;letter-spacing:-.02em}
 /* month calendar forecast */
 .cal{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:12px 10px 14px;display:flex;flex-direction:column;gap:10px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -215,7 +224,11 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .cc.past::after{background:#b9b4cf}
 .cc.past.past{background:var(--field)}
 .cc.kma::after{background:#3879b8} .cc.adj::after{background:#9cc3e8} .cc.rec::after{background:var(--accent)}
-.cal-detail{display:flex;gap:12px;align-items:flex-start;background:var(--field);border-radius:18px;padding:12px 14px}
+.cal-detail{display:flex;gap:12px;align-items:flex-start;background:var(--field);border-radius:18px;padding:12px 14px;position:relative}
+.cdt b.cdate{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.calrec-pen{border:0;box-shadow:none;background:transparent;padding:0 4px;margin:0;font:inherit;font-size:1.05em;line-height:1;color:var(--muted);border-radius:8px;cursor:pointer}
+.calrec-pen:hover{transform:none;color:var(--accent-deep)}
+.calrec-pen[aria-pressed="true"]{color:var(--accent-deep);background:color-mix(in srgb,var(--accent) 16%,transparent)}
 .ci.big{width:52px;height:52px;border-radius:16px;flex:none}
 .ci.big svg{width:44px;height:44px}
 .cdt{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -225,6 +238,39 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .cdt .lohi .hi{color:#d4475a} .cdt .lohi .lo{color:#3a7bc8}
 .cdt .memo{color:var(--fg);overflow-wrap:anywhere}
 .srcl{font-size:11.5px;color:var(--muted)} .srcl.kma{color:#2f6fae} .srcl.rec{color:var(--accent-deep)}
+.mp{display:flex;flex-direction:column;gap:8px}
+.mp h4{margin:4px 2px 0;font-family:var(--font-display);font-weight:700;font-size:15px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
+.mp h4 small{font-family:var(--font-body);font-weight:400;font-size:12px;color:var(--muted)}
+.calrec{background:var(--field);border-radius:18px;padding:12px 14px}
+.calrec h4{margin:0;font-size:15px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.calrec h4 small{font-size:12px;color:var(--muted);font-weight:400}
+.calrec .ef select,.calrec .ef input,.calrec .ef textarea{background:var(--surface)}
+.calrec-note{font-size:11.5px;color:var(--muted)}
+.mp-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.mp-item{display:flex;gap:10px;align-items:flex-start;background:var(--field);border-radius:16px;padding:10px 12px}
+.mp-list.mine .mp-item{background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1.5px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+.mp-item .ci{flex:none}
+.mp-body{min-width:0;display:flex;flex-direction:column;gap:3px}
+.mp-meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}
+.mp-meta b{font-family:var(--font-display);color:var(--fg)}
+.mp-meta em{font-style:normal;font-weight:700} .mp-meta .lo{color:#3a7bc8} .mp-meta .hi{color:#d4475a}
+.mp-memo.none{color:var(--muted);font-size:13px}
+.mp-empty{margin:0 2px;font-size:13px;color:var(--muted)}
+.mp-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
+.mp-head h4{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(12px,3.6vw,15px);gap:0 4px;flex-wrap:nowrap}
+.mp-head{gap:6px}
+.mp-wide{white-space:nowrap}
+.mp-wide:hover{transform:none}
+.mp-wide{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:3px 8px 3px 4px}
+.mp-wide .sw{width:28px;height:16px;border-radius:99px;background:var(--line);position:relative;transition:background .2s}
+.mp-wide .sw i{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s}
+.mp-wide[aria-checked="true"]{border-color:var(--accent);color:var(--accent-deep)}
+.mp-wide[aria-checked="true"] .sw{background:var(--accent)}
+.mp-wide[aria-checked="true"] .sw i{left:14px}
+.mp-tag.same{color:var(--accent-deep);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.mp-more{align-self:center;font-size:13px;padding:6px 16px}
+.mp-tag{font-style:normal;font-size:11px;border-radius:99px;padding:0 7px;border:1.5px solid var(--line)}
+.mp-memo{font-size:14.5px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}
 .cal-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:12px;color:var(--muted)}
 .lg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
 .lg.past{background:#b9b4cf} .lg.kma{background:#3879b8} .lg.adj{background:#9cc3e8} .lg.rec{background:var(--accent)} .lg.ext{border:1.5px dashed var(--muted);border-radius:3px}
@@ -359,7 +405,12 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
             <div class="chat" id="chat"></div>
           </div>
         </div>
-        <div class="grid">
+        <div class="grid" id="ydayGrid" hidden>
+          <div><span class="label">강수</span><b id="yRain"></b></div>
+          <div><span class="label">일교차</span><b id="yRange"></b></div>
+          <div><span class="label">어제 기록</span><b id="yCount"></b></div>
+        </div>
+        <div class="grid" id="todayGrid">
           <div><span class="label">체감</span><b id="feels"></b></div>
           <div><span class="label">습도</span><b id="hum"></b></div>
           <div><span class="label">강수</span><b id="rain"></b></div>
@@ -367,10 +418,14 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
           <div><span class="label">기압</span><b id="pres"></b></div>
           <div><span class="label">구름</span><b id="cloud"></b></div>
         </div>
+        <div class="daypick" role="group" aria-label="기록할 날">
+          <button type="button" class="on" data-day="today" aria-pressed="true">오늘 날씨</button>
+          <button type="button" data-day="yday" aria-pressed="false">🕘 어제 날씨</button>
+        </div>
         <textarea id="memo" placeholder="오늘 날씨 한 줄 메모 (예: 아침엔 쌀쌀, 우산 챙김)" rows="2"></textarea>
         <div class="row">
-          <button class="primary" id="saveBtn" type="button">이 날씨 기록하기</button>
-          <button id="locBtn" type="button">📍 내 위치</button>
+          <button class="primary" id="saveBtn" type="button">기록하기</button>
+          <button id="locBtn" type="button">📍 위치</button>
           <button id="refreshBtn" type="button">새로고침</button>
         </div>
       </div>
@@ -387,8 +442,8 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
     <div class="tabrow">
       <div class="tabs" id="tabs" role="tablist" aria-label="일기장 보기">
         <button type="button" role="tab" id="tabDiary" data-tab="diary" aria-selected="true" aria-controls="paneDiary">기록</button>
-        <button type="button" role="tab" id="tabStats" data-tab="stats" aria-selected="false" aria-controls="paneStats">통계</button>
         <button type="button" role="tab" id="tabFc" data-tab="fc" aria-selected="false" aria-controls="paneFc">예보</button>
+        <button type="button" role="tab" id="tabStats" data-tab="stats" aria-selected="false" aria-controls="paneStats">통계</button>
       </div>
       <button type="button" class="tabedit" id="tabEditBtn" aria-pressed="false" title="탭 순서 바꾸기">⇄ 순서</button>
     </div>
@@ -766,7 +821,8 @@ async function fetchWeather(lat, lon, name){
    ~16일 뒤: Open-Meteo 예보를 기상청 값과의 차이만큼 보정
    17일~5주 뒤: GFS 앙상블(31개 예측) 평균 → 주간 경향(참고용)            */
 const WD = ["일","월","화","수","목","금","토"];
-let fcSeq = 0, fcData = null, fcPlace = "", fcLoading = false, fcError = false, calMonth = null, calSel = null;
+var recDay = "today";   // 기록할 날: "today" | "yday"
+let fcSeq = 0, fcData = null, fcPlace = "", fcLoading = false, fcError = false, calMonth = null, calSel = null, calRec = null;
 async function loadForecast(lat, lon, place){
   const seq = ++fcSeq;
   fcPlace = place || ""; fcLoading = true; if(activeTab==="fc") renderCalendar();
@@ -846,8 +902,87 @@ function calInfo(){
   }
   return {info, today};
 }
+/* ---------- 그날 메모 + 최저·최고가 똑같았던 날의 기록 ----------
+   1) 그 날짜에 쓴 메모 전부
+   2) 최저기온과 최고기온이 둘 다 똑같은(반올림한 정수 기준) 다른 날의 기록 전부 (최근 날짜부터) */
+function recHiLo(r){ const hi=r.tmax!=null?r.tmax:r.temp, lo=r.tmin!=null?r.tmin:r.temp; return (hi==null||lo==null)?null:{hi:Math.round(hi),lo:Math.round(lo)}; }
+let mpShowAll=false, mpDay=null;
+let mpWide = (()=>{ try{ return localStorage.getItem("naldam-mp-wide")==="1"; }catch(e){ return false; } })();
+function memoPanel(day, sel){
+  if(mpDay!==day){ mpDay=day; mpShowAll=false; }
+  const mine = records.filter(r=>r.memo && dayKey(r)===day).sort((a,b)=>a.at.localeCompare(b.at));
+  let same=[];
+  if(sel && sel.tmax!=null && sel.tmin!=null){
+    const H=Math.round(sel.tmax), L=Math.round(sel.tmin);
+    const seen=new Set();
+    const R = mpWide ? 1 : 0;   // 켜면 ±1°까지
+    const gap = r => { const t=recHiLo(r); return Math.abs(t.hi-H)+Math.abs(t.lo-L); };
+    same = records.filter(r=>{ if(dayKey(r)===day) return false; const t=recHiLo(r); return t && Math.abs(t.hi-H)<=R && Math.abs(t.lo-L)<=R; })
+      .sort((a,b)=> (gap(a)===0)!==(gap(b)===0) ? (gap(a)===0?-1:1) : ((!!b.memo-!!a.memo) || b.at.localeCompare(a.at)))
+      .filter(r=>{ const k=dayKey(r)+"|"+(r.memo||""); if(seen.has(k)) return false; seen.add(k); return true; });
+  }
+  if(!mine.length && !(sel && sel.tmax!=null)) return "";
+  const H0=sel&&sel.tmax!=null?Math.round(sel.tmax):null, L0=sel&&sel.tmin!=null?Math.round(sel.tmin):null;
+  const card = r => { const t=recHiLo(r), d=dayKey(r).split("-");
+    const tag = (mpWide && t && H0!=null && (t.hi!==H0||t.lo!==L0)) ? ` <i class="mp-tag near">±1°</i>` : (mpWide && t && H0!=null ? ` <i class="mp-tag same">똑같음</i>` : "");
+    return `<li class="mp-item"><span class="ci k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</span>
+      <div class="mp-body"><div class="mp-meta"><b>${d[0].slice(2)}.${d[1]}.${d[2]}</b>${t?` <em class="lo">${t.lo}°</em> <em class="hi">${t.hi}°</em>`:""} <span>${esc(r.cond||"")}</span>${tag}</div>
+      ${r.memo?`<div class="mp-memo">${esc(r.memo)}</div>`:`<div class="mp-memo none">메모 없음</div>`}</div></li>`; };
+  const LIMIT=8, shown = mpShowAll ? same : same.slice(0,LIMIT);
+  return `<div class="mp">
+    ${mine.length?`<h4>✏️ 이날 쓴 메모</h4><ul class="mp-list mine">${mine.map(card).join("")}</ul>`:""}
+    ${sel && sel.tmax!=null ? `<div class="mp-head"><h4>🧥 최저 ${Math.round(sel.tmin)}° · 최고 ${Math.round(sel.tmax)}° ${mpWide?"근처":"였던"} 날 <small>${same.length}일</small></h4>
+      <button type="button" class="mp-wide" id="mpWide" role="switch" aria-checked="${mpWide}"><span class="sw"><i></i></span>±1°</button></div>
+      ${same.length ? `<ul class="mp-list">${shown.map(card).join("")}</ul>
+        ${same.length>LIMIT?`<button type="button" class="mp-more" id="mpMore">${mpShowAll?"접기":`${same.length-LIMIT}개 더 보기`}</button>`:""}`
+        : `<p class="mp-empty">${mpWide?"±1° 안의 기록도 아직 없어요.":"최저·최고가 똑같았던 날의 기록이 아직 없어요. ±1°를 켜 보세요."}</p>`}` : ""}
+  </div>`;
+}
+/* ---------- 달력에서 날짜를 골라 기록하기 ----------
+   지난 날·오늘만 돼요. 그날 날씨값(내 기록 > 지난 날씨 > 예보)을 미리 채워 두고, 고쳐서 저장할 수 있어요. */
+function calRecForm(day, sel, draft){
+  const v = x => x==null||x==="" ? "" : Math.round(x*10)/10;
+  const d = draft || { tmax:v(sel&&sel.tmax), tmin:v(sel&&sel.tmin), psum:v(sel&&sel.rain), memo:"",
+                       cond: sel&&sel.code!=null ? `${sel.code}|${sel.cond||WMO[sel.code]||""}` : "" };
+  const opts=[...COND_OPTIONS]; const [dc,dl]=(d.cond||"").split("|");
+  if(d.cond && !opts.some(([c,l])=>String(c)===dc&&l===dl)) opts.unshift([Number(dc),dl]);
+  const o = (d.cond?"":`<option value="" selected>날씨 선택</option>`) + opts.map(([c,l])=>`<option value="${c}|${esc(l)}"${`${c}|${l}`===d.cond?" selected":""}>${esc(l)}</option>`).join("");
+  return `<form class="editf calrec" id="calRecForm" data-day="${day}">
+    <h4>✏️ ${Number(day.slice(5,7))}월 ${Number(day.slice(8))}일 기록하기 <small>${esc(fcPlace||(current&&current.place)||"")}</small></h4>
+    <label class="ef">날씨<select name="cond">${o}</select></label>
+    <div class="ef3">
+      <label class="ef">최고 ℃<input name="tmax" type="number" step="0.1" inputmode="decimal" value="${d.tmax}"></label>
+      <label class="ef">최저 ℃<input name="tmin" type="number" step="0.1" inputmode="decimal" value="${d.tmin}"></label>
+      <label class="ef">강수량 mm<input name="psum" type="number" step="0.1" min="0" inputmode="decimal" value="${d.psum}"></label>
+    </div>
+    <label class="ef">메모<textarea name="memo" rows="2" placeholder="그날 입은 옷, 느낌을 적어요">${esc(d.memo)}</textarea></label>
+    ${sel?`<small class="calrec-note">${sel.src==="rec"?"이날 내 기록 값을 채워 두었어요.":"달력의 날씨 값을 채워 두었어요. 다르면 고쳐서 저장하세요."}</small>`:`<small class="calrec-note">이날 날씨 자료가 없어요. 기억나는 대로 적어 주세요.</small>`}
+    <div class="eb"><button type="submit" class="primary">기록하기</button><button type="button" class="cancel" id="calRecCancel">취소</button></div>
+  </form>`;
+}
+async function saveCalRec(f){
+  if(cloudEnabled && !user){ if(fb) login(); return; }
+  const day=f.dataset.day, num = x => x.trim()==="" ? null : Math.round(Number(x)*10)/10;
+  const [code,label] = f.cond.value ? f.cond.value.split("|") : [null,""];
+  const tmax=num(f.tmax.value), tmin=num(f.tmin.value), psum=num(f.psum.value), memo=f.memo.value.trim();
+  if(tmax==null && tmin==null && !memo && code==null){ f.memo.focus(); return; }
+  const {info}=calInfo(), sel=info[day], r1 = x => x==null ? null : Math.round(x*10)/10;
+  const changed = !sel || r1(sel.tmax)!==tmax || r1(sel.tmin)!==tmin || (code!=null && Number(code)!==sel.code);
+  const isToday = day===localDay(new Date());
+  const here = current && (!fcPlace || current.place===fcPlace);
+  const rec={ id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    at: isToday ? new Date().toISOString() : `${day}T21:00:00`,
+    place: fcPlace || (current&&current.place) || "", lat: here?current.lat:null, lon: here?current.lon:null,
+    temp:null, feels:null, hum:null, wind:null, windDir:null, pres:null, cloud:null, rain:null,
+    tmax, tmin, psum, code: code==null?null:Number(code), cond: label, memo, src:"past" };
+  if(changed) rec.edited=true;
+  const b=f.querySelector("button[type=submit]"); b.disabled=true; b.textContent="기록 중…";
+  try{ await addRecord(rec); calRec=null; renderCalendar(); }
+  catch(e){ b.disabled=false; b.textContent="기록하기"; setStatus("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); }
+}
 function renderCalendar(){
   const pane=$("paneFc"); if(!pane || pane.hidden) return;
+  const oldF=$("calRecForm"), draft = oldF && calRec===oldF.dataset.day ? { cond:oldF.cond.value, tmax:oldF.tmax.value, tmin:oldF.tmin.value, psum:oldF.psum.value, memo:oldF.memo.value } : null;
   const {info, today} = calInfo();
   const now=new Date();
   if(!calMonth) calMonth=new Date(now.getFullYear(), now.getMonth(), 1);
@@ -868,14 +1003,14 @@ function renderCalendar(){
   }
   const sel=info[calSel];
   const [sy,sm,sd]=calSel.split("-").map(Number), sw=WD[new Date(sy,sm-1,sd).getDay()];
+  const recBtn = calSel<=today ? `<button type="button" class="calrec-pen" id="calRecOpen" aria-pressed="${calRec===calSel}" aria-label="${sm}월 ${sd}일 날씨 기록하기" title="이날 기록하기">✎</button>` : "";
   const detail = sel ? `<div class="cal-detail">
       <span class="ci big k-${sel.code!=null?kindOf(sel.code):"cloud"}">${sel.code!=null?weatherIcon(kindOf(sel.code)):""}</span>
-      <div class="cdt"><b>${sm}월 ${sd}일 (${sw})${calSel===today?" · 오늘":""}</b>
+      <div class="cdt"><b class="cdate">${sm}월 ${sd}일 (${sw})${calSel===today?" · 오늘":""}${recBtn}</b>
         <span>${esc(sel.cond||"")}${sel.pop!=null&&sel.src!=="rec"?` · 비 올 확률 ${sel.pop}%`:""}${sel.rain!=null&&sel.rain>0?` · 강수 ${Math.round(sel.rain*10)/10}mm`:""}</span>
         <span class="lohi"><em class="lo">최저 ${Math.round(sel.tmin)}°</em><em class="hi">최고 ${Math.round(sel.tmax)}°</em></span>
-        ${sel.memo?`<span class="memo">${esc(sel.memo)}</span>`:""}
         <small class="srcl ${sel.src}">${SRC_LABEL[sel.src]||""}</small></div></div>`
-    : `<div class="cal-detail"><div class="cdt"><b>${sm}월 ${sd}일 (${sw})</b><span>${calSel<today?"이날은 기록이 없어요.":"아직 예보가 나오지 않은 날이에요."}</span></div></div>`;
+    : `<div class="cal-detail"><div class="cdt"><b class="cdate">${sm}월 ${sd}일 (${sw})${recBtn}</b><span>${calSel<today?"이날은 기록이 없어요.":"아직 예보가 나오지 않은 날이에요."}</span></div></div>`;
   const status = fcLoading ? `<div class="cal-note">예보를 불러오는 중…</div>` : fcError ? `<div class="cal-note err">예보를 불러오지 못했어요. 위 날씨 카드에서 새로고침해 주세요.</div>` : !fcData ? `<div class="cal-note">위치를 찾으면 앞으로 한 달 예보가 달력에 채워져요.</div>` : "";
   pane.innerHTML = `<div class="cal">
     <div class="cal-head">
@@ -886,15 +1021,22 @@ function renderCalendar(){
     ${status}
     <div class="cal-grid" role="grid">${WD.map((w,i)=>`<span class="cw ${i===0?"sun":i===6?"sat":""}">${w}</span>`).join("")}${cells}</div>
     ${detail}
+    ${calSel<=today && calRec===calSel ? calRecForm(calSel, sel, draft) : ""}
+    ${memoPanel(calSel, sel)}
     <div class="cal-legend"><span><i class="lg kma"></i>기상청</span><span><i class="lg adj"></i>보정 예보</span><span><i class="lg ext"></i>경향(참고)</span><span><i class="lg rec"></i>내 기록</span><span><i class="lg past"></i>지난 날씨</span></div>
   </div>`;
   $("calPrev").onclick=()=>{ calMonth=new Date(y,m-1,1); renderCalendar(); };
   $("calNext").onclick=()=>{ calMonth=new Date(y,m+1,1); renderCalendar(); };
-  pane.querySelector(".cal-grid").onclick=e=>{ const b=e.target.closest(".cc[data-d]"); if(!b) return; calSel=b.dataset.d; renderCalendar(); };
+  const mm=$("mpMore"); if(mm) mm.onclick=()=>{ mpShowAll=!mpShowAll; renderCalendar(); };
+  const mw=$("mpWide"); if(mw) mw.onclick=()=>{ mpWide=!mpWide; mpShowAll=false; try{ localStorage.setItem("naldam-mp-wide", mpWide?"1":"0"); }catch(e){} renderCalendar(); };
+  pane.querySelector(".cal-grid").onclick=e=>{ const b=e.target.closest(".cc[data-d]"); if(!b) return; if(calSel!==b.dataset.d) calRec=null; calSel=b.dataset.d; renderCalendar(); };
+  const ro=$("calRecOpen"); if(ro) ro.onclick=()=>{ calRec = calRec===calSel ? null : calSel; renderCalendar(); const f=$("calRecForm"); if(f){ f.scrollIntoView({block:"nearest",behavior:"smooth"}); } };
+  const rf=$("calRecForm"); if(rf){ rf.onsubmit=e=>{ e.preventDefault(); saveCalRec(rf); }; $("calRecCancel").onclick=()=>{ calRec=null; renderCalendar(); }; }
 }
 
 function renderNow(){
   const c=current; $("nowBody").hidden=false; $("noLocRow").hidden=true;
+  $("todayGrid").hidden=false; $("ydayGrid").hidden=true; $("temp").classList.remove("two");
   $("placeName").textContent=c.place;
   $("obsTime").textContent=fmtDate(new Date().toISOString());
   $("temp").innerHTML=`${Math.round(c.temp*10)/10}<small>℃</small>`;
@@ -912,6 +1054,7 @@ function renderNow(){
   $("wind").innerHTML=`${Number(c.wind).toFixed(1)} m/s<small>${dirName(c.windDir)}풍</small>`;
   $("pres").textContent= c.pres!=null ? `${Math.round(c.pres)} hPa` : "–";
   $("cloud").textContent= c.cloud!=null ? `${c.cloud}%` : "–";
+  if(recDay==="yday") loadYesterday();   // 위치가 바뀌면 어제 날씨도 다시
 }
 function locate(){
   if(!("geolocation" in navigator)){ setStatus("이 브라우저는 위치 기능을 지원하지 않아요. 아래에서 지역을 검색해 주세요.", true); return; }
@@ -949,6 +1092,7 @@ async function searchCity(){
 
 /* ---------- save ---------- */
 async function saveRecord(){
+  if(recDay==="yday") return saveYesterday();
   if(!current) return;
   if(cloudEnabled && !user){ if(fb) login(); return; }
   const rec = {...current, id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), at:new Date().toISOString(), memo:$("memo").value.trim()};
@@ -957,12 +1101,85 @@ async function saveRecord(){
     await addRecord(rec);
     $("memo").value=""; b.textContent="기록했어요";
   }catch(e){
-    setStatus("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); b.textContent="이 날씨 기록하기";
+    setStatus("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); b.textContent="기록하기";
   }
   setTimeout(()=>{ updateSaveLabel(); b.disabled=false; }, 1500);
 }
+/* ---------- 어제 날씨 기록하기 ----------
+   지금 보고 있는 위치의 어제 최저·최고·날씨·강수량을 가져와요.
+   (예보 모델 분석값 + 기상청과의 차이만큼 보정 — 예보 달력의 '지난 날씨'와 같은 값) */
+let ydayData=null;
+function ydayDate(){ const d=new Date(); d.setDate(d.getDate()-1); return d; }
+function setRecDay(day){
+  recDay=day;
+  document.querySelectorAll(".daypick button").forEach(b=>{ const on=b.dataset.day===day; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); });
+  $("memo").placeholder = day==="yday" ? "어제 날씨 한 줄 메모 (예: 니트에 후리스 soso)" : "오늘 날씨 한 줄 메모 (예: 아침엔 쌀쌀, 우산 챙김)";
+  updateSaveLabel();
+  if(current) renderNow();          // 어제를 고르면 renderNow 끝에서 어제 화면으로 바뀌어요
+}
+function ydayHeroLoading(msg){
+  const d=ydayDate();
+  $("obsTime").textContent=`어제 ${d.getMonth()+1}.${d.getDate()} (${WD[d.getDay()]})`;
+  $("todayGrid").hidden=true; $("ydayGrid").hidden=false;
+  ["yRain","yRange","yCount"].forEach(id=>$(id).textContent="–");
+  $("temp").innerHTML=""; $("temp").classList.add("two"); $("cond").textContent=""; $("hilo").innerHTML=""; $("chat").textContent=msg;
+}
+async function loadYesterday(){
+  if(!current) return;
+  const d=ydayDate(), key=localDay(d), place=current.place;
+  if(ydayData && ydayData.date===key && ydayData.place===place) return showYesterday();
+  ydayData=null; updateSaveLabel();
+  ydayHeroLoading("어제 날씨를 불러오는 중…");
+  try{
+    const same = fcData && fcPlace===place;
+    let p = same && (fcData.past||[]).find(x=>x.date===key);
+    if(!p){
+      const j = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${current.lat}&longitude=${current.lon}&timezone=auto&past_days=1&forecast_days=1&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum`).then(r=>r.json());
+      const i=j.daily.time.indexOf(key); if(i<0) throw new Error("no data");
+      const b = same && fcData.bias ? fcData.bias : {bx:0,bn:0};
+      p={ date:key, tmax:j.daily.temperature_2m_max[i]+b.bx, tmin:j.daily.temperature_2m_min[i]+b.bn, code:j.daily.weather_code[i], cond:WMO[j.daily.weather_code[i]]||"", rain:j.daily.precipitation_sum?j.daily.precipitation_sum[i]:null };
+    }
+    if(recDay!=="yday" || !current || current.place!==place) return;
+    ydayData={ ...p, place, tmax:Math.round(p.tmax*10)/10, tmin:Math.round(p.tmin*10)/10 };
+    showYesterday();
+  }catch(e){
+    if(recDay==="yday") ydayHeroLoading("어제 날씨를 불러오지 못했어요. 새로고침을 눌러 주세요.");
+  }
+}
+function showYesterday(){
+  if(recDay!=="yday" || !ydayData) return;
+  const p=ydayData, k=kindOf(p.code), n=records.filter(r=>dayKey(r)===p.date).length;
+  ydayHeroLoading("");
+  $("temp").innerHTML=`<span class="tlo">${Math.round(p.tmin)}°</span><span class="tsep">/</span><span class="thi">${Math.round(p.tmax)}°</span>`;
+  $("cond").textContent=p.cond||"";
+  $("hilo").innerHTML=`<span class="hi">최고 ${Math.round(p.tmax)}°</span><span class="lo">최저 ${Math.round(p.tmin)}°</span><span class="srcchip past">지난 날씨</span>`;
+  $("wicon").innerHTML=weatherIcon(k);
+  $("nowCard").className="card now k-"+k;
+  $("chat").textContent = n ? `어제 기록이 이미 ${n}개 있어요. 하나 더 추가돼요.` : "값이 다르면 기록 후 ✎ 수정으로 고쳐요.";
+  $("yRain").textContent = p.rain!=null ? `${Math.round(p.rain*10)/10} mm` : "–";
+  $("yRange").textContent = `${Math.round(p.tmax-p.tmin)}°`;
+  $("yCount").textContent = `${n}개`;
+  updateSaveLabel();
+}
+async function saveYesterday(){
+  if(!ydayData || !current) return;
+  if(cloudEnabled && !user){ if(fb) login(); return; }
+  const p=ydayData;
+  const rec={ id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), at:`${p.date}T21:00:00`,
+    place:p.place, lat:current.lat, lon:current.lon, temp:null, feels:null, hum:null, wind:null, windDir:null, pres:null, cloud:null,
+    tmax:p.tmax, tmin:p.tmin, code:p.code, cond:p.cond, rain:null, psum:p.rain!=null?Math.round(p.rain*10)/10:null,
+    memo:$("memo").value.trim(), src:"past" };
+  const b=$("saveBtn"); b.disabled=true;
+  try{ await addRecord(rec); $("memo").value=""; b.textContent="기록했어요"; setTimeout(()=>{ b.disabled=false; setRecDay("today"); }, 1200); }
+  catch(e){ setStatus("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); b.disabled=false; updateSaveLabel(); }
+}
+document.querySelectorAll(".daypick button").forEach(b=>b.onclick=()=>setRecDay(b.dataset.day));
+
 function updateSaveLabel(){
-  $("saveBtn").textContent = (cloudEnabled && !user) ? "로그인하고 기록하기" : "이 날씨 기록하기";
+  const b=$("saveBtn");
+  b.textContent = (cloudEnabled && !user) ? "로그인 후 기록" : recDay==="yday" ? "어제 기록" : "기록하기";
+  if(recDay==="yday" && !(cloudEnabled && !user)) b.disabled = !ydayData;
+  else if(recDay==="today" && b.textContent!=="기록했어요") b.disabled = false;
 }
 
 /* ---------- temperature search ----------
@@ -1275,7 +1492,7 @@ function renderList(){
   if(activeTab==="stats") renderStats(shown);
   if(activeTab==="fc"){ renderCalendar(); return; }
   $("count").textContent = records.length ? (shown.length===records.length ? `${records.length}개` : `${shown.length} / ${records.length}개`) : "";
-  if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘이 날씨 기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
+  if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
   if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>조건에 맞는 기록이 없어요.<br>검색어나 조건을 바꿔 볼까요?</span></div>`; return; }
   const hits = r => tq ? tempHits(r,tq) : new Set();
   list.innerHTML = shown.map(r=> r.id===editingId ? editForm(r) : `
@@ -1284,11 +1501,11 @@ function renderList(){
       <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
-        <div class="chips">${(r.tmax!=null&&r.tmin!=null)?`<span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span>`:""}<span class="srctag ${r.edited?"ed":r.src==="kma"?"kma":r.src==="memo"?"memo":""}">${r.edited?"직접 수정":r.src==="kma"?"기상청":r.src==="memo"?"옛 메모":"예보 기준"}</span></div>
-        <div class="meta">${[r.src==="memo"?fmtDate(r.at).slice(0,10):fmtDate(r.at), (r.psum??r.rain)>0?`강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:"", r.hum!=null?`습도 ${r.hum}%`:"", r.wind!=null?`${r.windDir!=null?dirName(r.windDir)+" ":""}${Number(r.wind).toFixed(1)}m/s`:""].filter(Boolean).join(" · ")}</div>
+        <div class="chips">${(r.tmax!=null&&r.tmin!=null)?`<span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span>`:""}<span class="srctag ${r.edited?"ed":r.src==="kma"?"kma":r.src==="memo"?"memo":r.src==="past"?"past":""}">${r.edited?"직접 수정":r.src==="kma"?"기상청":r.src==="memo"?"옛 메모":r.src==="past"?"지난 날씨":"예보 기준"}</span></div>
+        <div class="meta">${[(r.src==="memo"||r.src==="past")?fmtDate(r.at).slice(0,10):fmtDate(r.at), (r.psum??r.rain)>0?`강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:"", r.hum!=null?`습도 ${r.hum}%`:"", r.wind!=null?`${r.windDir!=null?dirName(r.windDir)+" ":""}${Number(r.wind).toFixed(1)}m/s`:""].filter(Boolean).join(" · ")}</div>
       </div>
       <div class="side">
-        <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${r.temp!=null?Math.round(r.temp)+"°":"–"}</div>
+        <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${r.temp!=null?Math.round(r.temp)+"°":""}</div>
         <button class="edit" type="button" data-id="${esc(r.id)}">✎ 수정</button>
       </div>
       ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
@@ -1446,7 +1663,7 @@ $("tabFc").onclick=()=>setTab("fc");
 /* ---------- 탭 순서 바꾸기 (이 기기에 저장) ---------- */
 const TAB_KEY="naldam-tab-order";
 const TAB_LABEL={diary:"기록",stats:"통계",fc:"예보"};
-function loadTabOrder(){ try{ const o=JSON.parse(localStorage.getItem(TAB_KEY)); if(Array.isArray(o)&&o.length===3&&["diary","stats","fc"].every(t=>o.includes(t))) return o; }catch(e){} return ["diary","stats","fc"]; }
+function loadTabOrder(){ try{ const o=JSON.parse(localStorage.getItem(TAB_KEY)); if(Array.isArray(o)&&o.length===3&&["diary","stats","fc"].every(t=>o.includes(t)) && o.join()!=="diary,stats,fc") return o; }catch(e){} return ["diary","fc","stats"]; }
 function saveTabOrder(){ try{ localStorage.setItem(TAB_KEY, JSON.stringify([...$("tabs").children].map(b=>b.dataset.tab))); }catch(e){} }
 function paintTabs(){
   const editing=$("tabs").classList.contains("editing");

@@ -313,8 +313,12 @@ body.selecting .mp-item .check{display:block}
 .mp-item.sel .check::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
 .mp-list.mine .mp-item{background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1.5px solid color-mix(in srgb,var(--accent) 35%,transparent)}
 .mp-item .ci{flex:none}
-.mp-body{min-width:0;display:flex;flex-direction:column;gap:3px}
-.mp-meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}
+.mp-body{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;gap:3px}
+.mp-meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:nowrap;align-items:center;gap:2px 6px;white-space:nowrap;min-width:0}
+.mp-meta>*{flex:none}
+.mp-meta .mp-wind{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:.86em;color:var(--muted);letter-spacing:-.3px}
+.mp-meta .mp-wind small{font-size:.85em}
+.mp-meta.fit .mp-wind{flex:none;overflow:visible}
 .mp-meta b{font-family:var(--font-display);color:var(--fg)}
 .mp-meta em{font-style:normal;font-weight:700} .mp-meta .lo{color:#3a7bc8} .mp-meta .hi{color:#d4475a}
 .mp-memo.none{color:var(--muted);font-size:13px}
@@ -332,7 +336,7 @@ body.selecting .mp-item .check{display:block}
 .mp-wide[aria-checked="true"] .sw i{left:14px}
 .mp-tag.same{color:var(--accent-deep);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
 .mp-more{align-self:center;font-size:13px;padding:6px 16px}
-.mp-tag{font-style:normal;font-size:11px;border-radius:99px;padding:0 7px;border:1.5px solid var(--line)}
+.mp-tag{font-style:normal;font-size:.88em;border-radius:99px;padding:0 7px;border:1.5px solid var(--line)}
 .mp-memo{font-size:14.5px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}
 .cal-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:12px;color:var(--muted)}
 .lg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
@@ -1135,10 +1139,15 @@ function memoPanel(day, sel){
   }
   if(!mine.length && !(sel && sel.tmax!=null)) return "";
   const H0=sel&&sel.tmax!=null?Math.round(sel.tmax):null, L0=sel&&sel.tmin!=null?Math.round(sel.tmin):null;
+  /* 옛날 기록의 바람: "💨 2.1m/s(북동풍) · 돌풍 4.7m/s" 한 줄로 */
+  const mpWind = r => { const v=r.wind!=null?r.wind:r.windMax, g=r.gustMax; if(v==null&&g==null) return "";
+    const a = v!=null ? `${r.wind!=null?"":"최대"}${Number(v).toFixed(1)}m/s${r.wind!=null&&r.windDir!=null?`<small>(${dirName(r.windDir)})</small>`:""}` : "";
+    const b = g!=null ? `돌풍${Number(g).toFixed(1)}` : "";
+    return `<span class="mp-wind">💨${[a,b].filter(Boolean).join(" ")}</span>`; };
   const card = r => { const t=recHiLo(r), d=dayKey(r).split("-");
     const tag = (mpWide && t && H0!=null && (t.hi!==H0||t.lo!==L0)) ? ` <i class="mp-tag near">±1°</i>` : (mpWide && t && H0!=null ? ` <i class="mp-tag same">똑같음</i>` : "");
     return `<li class="mp-item${selected.has(r.id)?" sel":""}" data-id="${esc(r.id)}"><span class="check" aria-hidden="true"></span><span class="ci k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</span>
-      <div class="mp-body"><div class="mp-meta"><b>${d[0].slice(2)}.${d[1]}.${d[2]}</b>${t?` <em class="lo">${t.lo}°</em> <em class="hi">${t.hi}°</em>`:""} <span>${esc(r.cond||"")}</span>${tag}</div>
+      <div class="mp-body"><div class="mp-meta"><b>${d[0].slice(2)}.${d[1]}.${d[2]}</b>${t?` <em class="lo">${t.lo}°</em> <em class="hi">${t.hi}°</em>`:""} <span>${esc(r.cond||"")}</span>${tag}${mpWind(r)}</div>
       ${r.memo?`<div class="mp-memo">${esc(r.memo)}</div>`:`<div class="mp-memo none">메모 없음</div>`}</div></li>`; };
   const LIMIT=8, shown = mpShowAll ? same : same.slice(0,LIMIT);
   return `<div class="mp">
@@ -1194,6 +1203,16 @@ async function saveCalRec(f){
   try{ await addRecord(rec); calRec=null; renderCalendar(); }
   catch(e){ b.disabled=false; b.textContent="기록하기"; setStatus("기록을 저장하지 못했어요. 인터넷 연결을 확인해 주세요.", true); }
 }
+/* 옛날 기록 한 줄(날짜·기온·날씨·바람)이 줄바꿈 없이 다 보이게, 넘치면 글자를 조금씩 줄여요 */
+function fitMeta(root){
+  root.querySelectorAll(".mp-meta").forEach(m=>{
+    if(!m.clientWidth) return;
+    let f=12.5; m.style.fontSize=""; m.classList.add("fit");
+    while(m.scrollWidth>m.clientWidth+1 && f>9){ f-=.5; m.style.fontSize=f+"px"; }
+    m.classList.remove("fit");
+  });
+}
+let fitRO=null;
 function renderCalendar(){
   const pane=$("paneFc"); if(!pane || pane.hidden) return;
   const oldF=$("calRecForm"), draft = oldF && calRec===oldF.dataset.day ? { cond:oldF.cond.value, tmax:oldF.tmax.value, tmin:oldF.tmin.value, psum:oldF.psum.value, memo:oldF.memo.value } : null;
@@ -1254,6 +1273,8 @@ function renderCalendar(){
   const mm=$("mpMore"); if(mm) mm.onclick=()=>{ mpShowAll=!mpShowAll; renderCalendar(); };
   const mw=$("mpWide"); if(mw) mw.onclick=()=>{ mpWide=!mpWide; mpShowAll=false; try{ localStorage.setItem("naldam-mp-wide", mpWide?"1":"0"); }catch(e){} renderCalendar(); };
   pane.querySelector(".cal-grid").onclick=e=>{ const b=e.target.closest(".cc[data-d]"); if(!b) return; if(calSel!==b.dataset.d) calRec=null; calSel=b.dataset.d; renderCalendar(); };
+  fitMeta(pane);
+  if(!fitRO && window.ResizeObserver){ fitRO=new ResizeObserver(()=>fitMeta(pane)); fitRO.observe(pane); }
   const ro=$("calRecOpen"); if(ro) ro.onclick=()=>{ calRec = calRec===calSel ? null : calSel; renderCalendar(); const f=$("calRecForm"); if(f){ f.scrollIntoView({block:"nearest",behavior:"smooth"}); } };
   const rf=$("calRecForm"); if(rf){ rf.onsubmit=e=>{ e.preventDefault(); saveCalRec(rf); }; $("calRecCancel").onclick=()=>{ calRec=null; renderCalendar(); }; }
 }

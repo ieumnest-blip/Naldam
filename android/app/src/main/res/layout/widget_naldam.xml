@@ -178,6 +178,20 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- 비 소식 (앞으로 3시간) -->
+    <TextView
+        android:id="@+id/rain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#3A7BC8"
+        android:textSize="12.5sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
     <!-- 3줄: 한마디 -->
     <TextView
         android:id="@+id/chat"

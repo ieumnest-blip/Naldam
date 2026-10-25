@@ -21,10 +21,18 @@ public class RefreshActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!Loc.hasPermission(this)) {
-            requestPermissions(new String[]{
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION}, REQ_LOC);
+        boolean needNoti = Build.VERSION.SDK_INT >= 33
+            && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED
+            && !getSharedPreferences(Weather.PREFS, MODE_PRIVATE).getBoolean("askedNoti", false);
+        if (!Loc.hasPermission(this) || needNoti) {
+            getSharedPreferences(Weather.PREFS, MODE_PRIVATE).edit().putBoolean("askedNoti", true).apply();
+            java.util.List<String> want = new java.util.ArrayList<>();
+            if (!Loc.hasPermission(this)) {
+                want.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+                want.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+            if (needNoti) want.add("android.permission.POST_NOTIFICATIONS");
+            requestPermissions(want.toArray(new String[0]), REQ_LOC);
         } else {
             maybeAskBackgroundThenRefresh();
         }

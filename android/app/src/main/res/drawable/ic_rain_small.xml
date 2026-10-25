@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 알림줄에 나오는 작은 우산 그림 (흰색 한 가지 색) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M12,3C7,3 3,6.6 3,11h18c0,-4.4 -4,-8 -9,-8z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="2" android:strokeLineCap="round"
+        android:pathData="M12,11v7a2,2 0,0 1,-4 0" />
+</vector>

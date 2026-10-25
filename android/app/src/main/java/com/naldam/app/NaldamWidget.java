@@ -50,6 +50,7 @@ public class NaldamWidget extends AppWidgetProvider {
                 Weather w = Weather.fetch(ctx, ll[0], ll[1]);
                 w.save(ctx);
                 ok = true;
+                RainAlert.maybeNotify(ctx, w);
             }
         } catch (Exception ignored) {
         }
@@ -92,6 +93,7 @@ public class NaldamWidget extends AppWidgetProvider {
             v.setTextViewText(R.id.cond, "");
             v.setViewVisibility(R.id.rowHiLo, View.GONE);
             v.setViewVisibility(R.id.wind, View.GONE);
+            v.setViewVisibility(R.id.rain, View.GONE);
             v.setViewVisibility(R.id.chat, View.VISIBLE);
             v.setTextViewText(R.id.chat, Loc.hasPermission(ctx)
                 ? "날씨를 불러오는 중이에요… ↻ 를 눌러 보세요"
@@ -123,7 +125,15 @@ public class NaldamWidget extends AppWidgetProvider {
         if (wdp < 130) tempSp = Math.min(tempSp, 24);
         v.setTextViewTextSize(R.id.temp, TypedValue.COMPLEX_UNIT_SP, tempSp);
 
-        v.setTextViewText(R.id.place, (wdp >= 260 ? w.place : w.placeShort));
+        // 비 소식: 줄이 들어갈 만큼 크면 따로 한 줄, 작으면 지역 이름 앞에 ☔ 만
+        boolean recent = System.currentTimeMillis() - w.time < 3 * 3600_000L;
+        String rain = recent ? w.rainMsg : null;
+        boolean showRain = rain != null && hdp >= 100 && wdp >= 170;
+        v.setViewVisibility(R.id.rain, showRain ? View.VISIBLE : View.GONE);
+        if (rain != null) v.setTextViewText(R.id.rain, rain);
+        String placeText = (wdp >= 260 ? w.place : w.placeShort);
+        if (rain != null && !showRain) placeText = "☔ " + placeText;
+        v.setTextViewText(R.id.place, placeText);
         v.setViewVisibility(R.id.time, showTime ? View.VISIBLE : View.GONE);
         v.setTextViewText(R.id.time, new SimpleDateFormat(wdp >= 300 ? "yyyy.MM.dd HH:mm" : "HH:mm", Locale.KOREA).format(new Date(w.time)));
 
@@ -144,6 +154,7 @@ public class NaldamWidget extends AppWidgetProvider {
         v.setViewVisibility(R.id.src, showSrc ? View.VISIBLE : View.GONE);
         v.setTextViewText(R.id.src, w.kma ? "기상청 기준" : "예보 기준");
 
+        if (showRain && hdp < 190) showChat = false;
         v.setViewVisibility(R.id.chat, showChat ? View.VISIBLE : View.GONE);
         v.setTextViewText(R.id.chat, w.chatLine());
 

@@ -192,6 +192,7 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .temp .thi{color:#d4475a}
 .wdir{font-size:.9em;font-weight:inherit;margin-left:2px}
 .grid b .wdir{display:block;margin:0}
+.rainsay{font-size:13px;color:#3a7bc8;font-weight:700;margin-top:3px;word-break:keep-all;line-height:1.45}
 .windsay{font-size:13px;color:var(--muted);margin-top:2px;word-break:keep-all;line-height:1.45}
 .windsay:empty{display:none}
 .windsay b{color:#3a8f9a;font-weight:700}
@@ -471,7 +472,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
   .cond{font-size:17px;margin-top:2px}
   .hilo{margin-top:4px;gap:5px}
   .hilo span{font-size:12px;padding:1px 8px}
-  .chat,.windsay{font-size:12.5px;line-height:1.4}
+  .chat,.windsay,.rainsay{font-size:12.5px;line-height:1.4}
   .grid{gap:6px}
   .grid div{padding:5px 4px;border-radius:13px}
   .grid .label{font-size:10.5px;line-height:1.3}
@@ -527,6 +528,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
             <div class="hilo" id="hilo"></div>
             <div class="chat" id="chat"></div>
             <div class="windsay" id="windSay"></div>
+            <div class="rainsay" id="rainSay" hidden></div>
           </div>
         </div>
         <div class="grid" id="ydayGrid" hidden>
@@ -954,6 +956,23 @@ async function fetchKma(lat, lon){
   } finally { clearTimeout(t); }
 }
 // 기상청 강수형태(PTY)·하늘상태(SKY) → 앱의 날씨 코드
+/* 앞으로 3시간 비 소식 (15분 단위 예보)
+   - 지금 안 오면: "☔ 약 40분 뒤 비 소식이 있어요"
+   - 지금 오면:   "☔ 지금 비가 와요 · 약 1시간 뒤 그칠 것 같아요" */
+function rainOutlook(j){
+  const m=j.minutely_15; if(!m || !m.time || !m.precipitation) return null;
+  const nowT=(j.current && j.current.time) || m.time[0];
+  let i=m.time.findIndex(t=>t>=nowT); if(i<0) return null;
+  const P=m.precipitation, WET=0.2, N=12;   // 15분 × 12 = 3시간
+  const fmt=mins=> mins<60 ? `약 ${mins}분` : (mins%60 ? `약 ${Math.floor(mins/60)}시간 ${mins%60}분` : `약 ${mins/60}시간`);
+  const rainingNow = (j.current && j.current.precipitation>0) || (P[i]||0)>=WET;
+  if(rainingNow){
+    for(let k=1;k<=N;k++){ if((P[i+k]??1)<WET && (P[i+k+1]??1)<WET) return `☔ 지금 비가 와요 · ${fmt(k*15)} 뒤 그칠 것 같아요`; }
+    return "☔ 지금 비가 와요 · 3시간 넘게 이어질 것 같아요";
+  }
+  for(let k=1;k<=N;k++){ if((P[i+k]||0)>=WET) return `☔ ${fmt(k*15)} 뒤 비 소식이 있어요. 우산 챙겨요!`; }
+  return null;
+}
 function kmaCond(pty, sky){
   const P={1:[63,"비"],2:[66,"비/눈"],3:[73,"눈"],4:[80,"소나기"],5:[51,"빗방울"],6:[66,"빗방울눈날림"],7:[71,"눈날림"]};
   if(pty && P[pty]) return P[pty];
@@ -965,7 +984,8 @@ async function fetchWeather(lat, lon, name){
   setStatus("날씨를 불러오는 중…");
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
     `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m`+
-    `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=1`+
+    `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=2`+
+    `&minutely_15=precipitation&forecast_minutely_15=24`+
     `&wind_speed_unit=ms&timezone=auto`;
   const useKma = !!KMA_PROXY && inKorea(lat, lon);
   kmaError = "";
@@ -983,7 +1003,8 @@ async function fetchWeather(lat, lon, name){
     cloud:c.cloud_cover ?? null, pres:c.pressure_msl ?? null, wind:c.wind_speed_10m, windDir:c.wind_direction_10m,
     tmax: wr && wr.daily ? wr.daily.temperature_2m_max[0] : null, tmin: wr && wr.daily ? wr.daily.temperature_2m_min[0] : null,
     psum: wr && wr.daily && wr.daily.precipitation_sum ? wr.daily.precipitation_sum[0] : null,
-    src: "open-meteo"
+    src: "open-meteo",
+    rainMsg: wr ? rainOutlook(wr) : null
   };
   if(kma){
     const n=kma.now||{}, t=kma.today||{};
@@ -1258,6 +1279,7 @@ function renderNow(){
   $("wind").innerHTML=`${Number(c.wind).toFixed(1)} m/s${c.windDir!=null?`<span class="wdir">(${dirName(c.windDir)}풍)</span>`:""}`;
   $("wind").title=wf.feel;
   $("windSay").innerHTML=`💨 지금 <b>${wf.name}</b>; ${wf.feel}`;
+  $("rainSay").hidden = !c.rainMsg; $("rainSay").textContent = c.rainMsg || "";
   $("pres").textContent= c.pres!=null ? `${Math.round(c.pres)} hPa` : "–";
   $("cloud").textContent= c.cloud!=null ? `${c.cloud}%` : "–";
   if(recDay==="yday") loadYesterday();   // 위치가 바뀌면 어제 날씨도 다시
@@ -1360,7 +1382,7 @@ function setRecDay(day){
 function ydayHeroLoading(msg){
   const d=ydayDate();
   $("obsTime").textContent=`어제 ${d.getMonth()+1}.${d.getDate()} (${WD[d.getDay()]})`;
-  $("todayGrid").hidden=true; $("ydayGrid").hidden=false;
+  $("todayGrid").hidden=true; $("ydayGrid").hidden=false; $("rainSay").hidden=true;
   ["yRain","yRange","yCount"].forEach(id=>$(id).textContent="–");
   $("temp").innerHTML=""; $("windSay").innerHTML=""; $("temp").classList.add("two"); $("cond").textContent=""; $("hilo").innerHTML=""; $("chat").textContent=msg;
 }

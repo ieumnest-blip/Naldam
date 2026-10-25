@@ -35,6 +35,9 @@ final class Weather {
     String cond = "";
     boolean kma = false;
     long time = 0;           // 받아온 시각 (ms)
+    String rainMsg = null;   // 예: ☔ 약 45분 뒤 비 소식이 있어요
+    int rainEta = -1;        // 비가 시작될 때까지 몇 분 (안 오면 -1)
+    boolean rainingNow = false;
 
     private static final Map<Integer, String> WMO = new HashMap<>();
     static {
@@ -92,7 +95,8 @@ final class Weather {
 
         String omUrl = String.format(Locale.US,
             "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
-            + "&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m"
+            + "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m"
+            + "&minutely_15=precipitation&forecast_minutely_15=24"
             + "&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&wind_speed_unit=ms&timezone=Asia%%2FSeoul",
             lat, lon);
         Thread t1 = new Thread(() -> { try { om[0] = getJson(omUrl); } catch (Exception ignored) { } });
@@ -129,6 +133,7 @@ final class Weather {
             }
             String nm = WMO.get(w.code);
             w.cond = nm != null ? nm : "";
+            w.rainOutlook(om[0]);
         }
         if (km[0] != null) {
             JSONObject n = km[0].optJSONObject("now");
@@ -207,6 +212,47 @@ final class Weather {
         }
     }
 
+    /** 앞으로 3시간 비 소식 (15분 단위 예보, 앱과 같은 계산) */
+    private void rainOutlook(JSONObject j) {
+        try {
+            JSONObject m = j.optJSONObject("minutely_15");
+            JSONObject c = j.optJSONObject("current");
+            if (m == null) return;
+            org.json.JSONArray times = m.getJSONArray("time"), p = m.getJSONArray("precipitation");
+            String nowT = c != null ? c.optString("time", times.getString(0)) : times.getString(0);
+            int i = -1;
+            for (int k = 0; k < times.length(); k++) if (times.getString(k).compareTo(nowT) >= 0) { i = k; break; }
+            if (i < 0) return;
+            final double WET = 0.2;
+            final int N = 12;
+            boolean now = (c != null && c.optDouble("precipitation", 0) > 0) || p.optDouble(i, 0) >= WET;
+            rainingNow = now;
+            if (now) {
+                for (int k = 1; k <= N; k++) {
+                    if (p.optDouble(i + k, 1) < WET && p.optDouble(i + k + 1, 1) < WET) {
+                        rainMsg = "☔ 지금 비가 와요 · " + fmtMin(k * 15) + " 뒤 그칠 것 같아요";
+                        return;
+                    }
+                }
+                rainMsg = "☔ 지금 비가 와요 · 3시간 넘게 이어질 것 같아요";
+                return;
+            }
+            for (int k = 1; k <= N; k++) {
+                if (p.optDouble(i + k, 0) >= WET) {
+                    rainEta = k * 15;
+                    rainMsg = "☔ " + fmtMin(rainEta) + " 뒤 비 소식이 있어요. 우산 챙겨요!";
+                    return;
+                }
+            }
+        } catch (Exception ignored) { }
+    }
+
+    static String fmtMin(int mins) {
+        if (mins < 60) return "약 " + mins + "분";
+        int h = mins / 60, m = mins % 60;
+        return m == 0 ? "약 " + h + "시간" : "약 " + h + "시간 " + m + "분";
+    }
+
     // ---- 저장 / 불러오기 ----
     void save(Context ctx) {
         try {
@@ -216,6 +262,8 @@ final class Weather {
             putD(j, "temp", temp); putD(j, "feels", feels); putD(j, "tmax", tmax); putD(j, "tmin", tmin);
             putD(j, "wind", wind); putD(j, "windDir", windDir);
             j.put("code", code); j.put("cond", cond); j.put("kma", kma); j.put("time", time);
+            if (rainMsg != null) j.put("rainMsg", rainMsg);
+            j.put("rainEta", rainEta); j.put("rainingNow", rainingNow);
             ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("weather", j.toString()).apply();
         } catch (Exception ignored) { }
     }
@@ -237,6 +285,9 @@ final class Weather {
             w.wind = j.optDouble("wind", Double.NaN); w.windDir = j.optDouble("windDir", Double.NaN);
             w.code = j.optInt("code", -1); w.cond = j.optString("cond"); w.kma = j.optBoolean("kma");
             w.time = j.optLong("time");
+            w.rainMsg = j.has("rainMsg") ? j.optString("rainMsg") : null;
+            w.rainEta = j.optInt("rainEta", -1);
+            w.rainingNow = j.optBoolean("rainingNow", false);
             return w;
         } catch (Exception e) {
             return null;

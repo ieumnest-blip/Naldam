@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- 앱을 안 열어도 위젯이 바뀐 위치를 알 수 있게 ("항상 허용"일 때만) -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- "곧 비가 와요" 알림 (안드로이드 13 이상은 허용을 물어봐요) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <queries>
         <intent>

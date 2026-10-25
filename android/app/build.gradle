@@ -52,4 +52,6 @@ android {
 dependencies {
     // 날담 웹사이트를 크롬 화면 그대로 앱으로 띄워 주는 도구 (구글 로그인도 그대로 됨)
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    // 앱 안에서 '위치 허용'을 받아서 날담 화면에 넘겨주는 도구
+    implementation 'com.google.androidbrowserhelper:locationdelegation:1.1.1'
 }

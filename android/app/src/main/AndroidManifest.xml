@@ -64,6 +64,21 @@
             </intent-filter>
         </activity>
 
+        <!-- 날담 화면이 위치를 물으면, 앱이 대신 폰에 위치 허용을 받아서 넘겨줘요 -->
+        <service
+            android:name=".DelegationService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <activity
+            android:name="com.google.androidbrowserhelper.locationdelegation.PermissionRequestActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <!-- 위젯 새로고침 + 위치 허용을 받는 투명한 화면 -->
         <activity
             android:name=".RefreshActivity"

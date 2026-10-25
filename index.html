@@ -10,11 +10,16 @@
 <meta name="apple-mobile-web-app-title" content="날담">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
 <style>
 @font-face{font-family:"SchoolSafetyChalkboardEraser";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimChilpanjiugaeTTF-L.woff2") format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"SchoolSafetyChalkboardEraser";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimChilpanjiugaeTTF-B.woff2") format("woff2");font-weight:700;font-display:swap}
@@ -69,17 +74,23 @@ body{background:var(--bg);background-image:radial-gradient(circle at 15% 0%,var(
 .wrap{max-width:540px;margin:0 auto;display:flex;flex-direction:column;gap:22px;padding-block:22px}
 
 /* header */
-header{display:flex;flex-direction:column;gap:12px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+header .brand{min-width:0}
 .brand{display:flex;align-items:center;gap:10px}
-.brand .logo{width:52px;height:52px;flex:none;filter:drop-shadow(0 3px 0 rgba(56,121,184,.15))}
+.brand .logo{width:58px;height:58px;flex:none}
 .brand .logo svg{width:100%;height:100%;display:block}
-header h1{font-weight:700;font-family:var(--font-display);font-weight:700;font-size:32px;line-height:1.1;margin:0;letter-spacing:-.01em}
+header h1{position:relative;top:.12em;font-family:"Gaegu",var(--font-display);font-weight:700;font-size:56px;line-height:1.05;margin:0;letter-spacing:-.01em;display:flex;align-items:baseline;flex-wrap:nowrap;column-gap:8px;white-space:nowrap}
 header h1 span{color:var(--accent-deep)}
-header h1 em{font-style:normal;font-family:var(--font-display);font-size:14px;letter-spacing:.06em;color:#3879b8;background:#e6f2ff;border-radius:99px;padding:3px 10px 2px;margin-left:10px;vertical-align:middle;position:relative;top:-3px}
+/* '날씨를 담다'의 '날'·'담' 위 강조 점 (글자와 같은 색) */
+header h1 em .dt{font-style:normal;position:relative;display:inline-block}
+header h1 em .dt::before{content:"";position:absolute;left:50%;top:-.3em;width:.24em;height:.24em;min-width:3px;min-height:3px;border-radius:50%;background:currentColor;transform:translateX(-50%)}
+header h1 em{font-style:normal;font-family:"Gaegu",var(--font-display);font-weight:700;font-size:17px;letter-spacing:0;color:var(--muted);white-space:nowrap}
 header p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
-.account{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
-  background:var(--surface);border:2px dashed var(--line);border-radius:18px;padding:10px 12px 10px 14px;font-size:13.5px}
-.account .who{min-width:0;overflow-wrap:anywhere}
+.account{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 1 auto;min-width:0;max-width:58%;
+  background:var(--surface);border:2px dashed var(--line);border-radius:16px;padding:6px 8px 6px 12px;font-size:13px}
+.account .who{min-width:0;word-break:keep-all}
+.account .mail{overflow-wrap:anywhere}
+.account button{white-space:nowrap;flex:none}
 .account .ok{color:#2f8f6f;font-size:12.5px;margin-right:4px}
 .account .mail{display:block;font-size:12px;color:var(--muted);pointer-events:none;-webkit-user-select:none;user-select:none}
 .account .who b{font-family:var(--font-display);font-weight:700;font-size:15px}
@@ -189,7 +200,30 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .srcchip.past{color:#7a6fb0;border-color:color-mix(in srgb,#9a8fd0 55%,transparent)}
 .srctag.past{color:#7a6fb0;border-color:color-mix(in srgb,#9a8fd0 50%,transparent);border-style:solid}
 .placebar{display:flex;gap:8px}
+.cityfield{position:relative;flex:1;min-width:0;display:block}
+.cityfield .pin{position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;margin:0}
+.cityfield input{padding-left:40px;width:100%}
 .placebar input{flex:1;min-width:0}
+.pin{width:1.05em;height:1.35em;flex:none;color:#ff6f91;vertical-align:-.3em;margin-right:4px;
+  filter:drop-shadow(0 0 2px rgba(255,111,145,.75)) drop-shadow(0 0 5px rgba(255,111,145,.35))}
+#locBtn,#locBtn2,.recent button{display:inline-flex;align-items:center;justify-content:center;gap:2px}
+.recent .pin{width:.9em;height:1.15em}
+/* 위치 그림 + 글자 밑에 길게 깔리는 빛나는 타원 (위치 그림 자리에서 시작해 글자 끝까지) */
+.pinwrap{position:relative;display:inline-flex;align-items:flex-end;gap:5px;padding:0 calc(1.05em + 7px) 3px 2px;line-height:1}
+.recent .pinwrap{padding-right:calc(.9em + 7px)}
+.pinwrap .pt{position:relative;top:.2em;font-size:1.1em;z-index:1;
+  text-shadow:0 0 2px var(--surface),0 0 2px var(--surface),0 0 3px var(--surface),1px 0 0 var(--surface),-1px 0 0 var(--surface)}
+.pinwrap{isolation:isolate}
+.pinwrap::after{z-index:-1}
+.pinwrap .pin{vertical-align:baseline;margin-bottom:-.12em}
+.pinwrap::after,.cityfield::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:7px;border:1.6px solid rgba(255,111,145,.6);border-radius:50%;
+  box-shadow:0 0 6px rgba(255,111,145,.45), inset 0 0 4px rgba(255,111,145,.25);pointer-events:none}
+.cityfield::after{left:12px;right:16px;bottom:8px}
+.cityfield:focus-within::after{opacity:.5}
+.install{display:flex;align-items:center;gap:8px;background:var(--surface);border:2px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:16px;padding:8px 8px 8px 12px;font-size:13px;line-height:1.45}
+.install span{flex:1;min-width:0;word-break:keep-all}
+.install button{padding:6px 14px;font-size:13px;flex:none}
+.install .ix{padding:4px 9px;background:transparent;border-color:transparent;color:var(--muted)}
 .res-note{font-size:13px;color:var(--muted);padding:4px 6px}
 .recent{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .recent:empty{display:none}
@@ -270,7 +304,12 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .calrec .ef select,.calrec .ef input,.calrec .ef textarea{background:var(--surface)}
 .calrec-note{font-size:11.5px;color:var(--muted)}
 .mp-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.mp-item{display:flex;gap:10px;align-items:flex-start;background:var(--field);border-radius:16px;padding:10px 12px}
+.mp-item{display:flex;gap:10px;align-items:flex-start;background:var(--field);border-radius:16px;padding:10px 12px;position:relative;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .12s}
+.mp-item .check{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:none;z-index:1}
+body.selecting .mp-item .check{display:block}
+.mp-item.sel{box-shadow:0 0 0 3px var(--accent);transform:scale(.985)}
+.mp-item.sel .check{background:var(--accent);border-color:var(--accent)}
+.mp-item.sel .check::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
 .mp-list.mine .mp-item{background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1.5px solid color-mix(in srgb,var(--accent) 35%,transparent)}
 .mp-item .ci{flex:none}
 .mp-body{min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -328,6 +367,10 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .list{display:flex;flex-direction:column;gap:10px}
 .entry{display:grid;grid-template-columns:56px 1fr auto;gap:2px 12px;padding:12px 14px;background:var(--surface);border-radius:22px;box-shadow:var(--shadow);align-items:center}
+.entry .icwrap{grid-row:1 / span 3;align-self:start;display:flex;flex-direction:column;align-items:center;gap:6px}
+.obadge{display:flex;flex-direction:column;align-items:center;font-size:10px;line-height:1.2;color:var(--accent-deep);text-align:center;width:56px}
+.obadge span{white-space:nowrap;letter-spacing:-.04em;margin:0 -6px}
+.obadge i{font-style:normal;font-size:22px;line-height:1.1;margin-bottom:1px}
 .entry .ic{width:56px;height:56px;border-radius:18px;background:var(--sky-part);display:grid;place-items:center}
 .entry .ic.k-sun{background:var(--sky-sun)} .entry .ic.k-cloud{background:var(--sky-cloud)} .entry .ic.k-rain{background:var(--sky-rain)}
 .entry .ic.k-snow{background:var(--sky-snow)} .entry .ic.k-storm{background:var(--sky-storm)} .entry .ic.k-fog{background:var(--sky-fog)}
@@ -403,20 +446,73 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes fall{0%{transform:translateY(-3px);opacity:0}30%{opacity:1}100%{transform:translateY(5px);opacity:0}}
 }
+/* ---------- 휴대폰: 홈 화면 한 화면에 '기록하기'까지 보이게 ---------- */
+@media (max-width:600px){
+  .wrap{gap:14px;padding-block:12px}
+  .brand{gap:8px}
+  .brand .logo{width:44px;height:44px}
+  header h1{font-size:34px;column-gap:6px}
+  header h1 em{font-size:15px}
+  header h1{font-size:clamp(36px,12vw,48px)}
+  .brand .logo{width:clamp(38px,11.5vw,48px);height:clamp(38px,11.5vw,48px)}
+  header p{display:none}
+  .account{padding:4px 5px 4px 9px;border-radius:14px;flex-wrap:nowrap;max-width:none;flex:0 1 auto}
+  header .brand{flex:0 0 auto}
+  .account .mail,.account .ok,.account .who.hint{display:none}
+  .account .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+  .account .who b{font-size:14px}
+  .account button{padding:4px 9px;font-size:12px;flex:none}
+  .account .gbtn{gap:5px}
+  .card{padding:14px 14px 16px;border-radius:24px}
+  .now{gap:9px}
+  .wicon{width:84px;height:84px}
+  .temp{font-size:50px}
+  .temp small{font-size:22px}
+  .cond{font-size:17px;margin-top:2px}
+  .hilo{margin-top:4px;gap:5px}
+  .hilo span{font-size:12px;padding:1px 8px}
+  .chat,.windsay{font-size:12.5px;line-height:1.4}
+  .grid{gap:6px}
+  .grid div{padding:5px 4px;border-radius:13px}
+  .grid .label{font-size:10.5px;line-height:1.3}
+  .grid b{font-size:14px;line-height:1.25}
+  .grid b .wdir{display:block;font-size:11px;line-height:1.2}
+  .grid b small{display:inline;font-size:11px;margin-left:3px}
+  .daypick button{padding:4px 12px;font-size:13px}
+  #memo{min-height:40px;padding:8px 12px;font-size:15px}
+  #nowBody .row button{padding:9px 4px}
+}
+@media (max-width:380px){
+  header h1{font-size:38px;column-gap:4px}
+  header h1 em{font-size:13px}
+  .brand{gap:6px}
+  .account{padding:3px 4px 3px 7px}
+  .account button{padding:4px 7px;font-size:11.5px}
+}
+@media (min-width:381px) and (max-width:420px){
+  header h1 em{font-size:14px}
+  .account{padding:3px 4px 3px 8px}
+  .account button{padding:4px 8px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="brand">
-      <span class="logo" aria-hidden="true"><svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#e6f2ff"/><g transform="translate(96 96) scale(13.333)" fill="none" stroke="#3879b8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></g></svg></span>
+      <span class="logo" aria-hidden="true"><svg viewBox="0.6 0.6 22.8 22.8" aria-hidden="true"><g fill="none" stroke="#3879b8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></g></svg></span>
       <div>
-        <h1><span>날</span>담<em lang="en">Naldam</em></h1>
-        <p>날씨를 담다 · 오늘 하늘을 콕 기록하고, 지난 날씨를 찾아봐요.</p>
+        <h1><span>날</span>담<em><i class="dt">날</i>씨를 <i class="dt">담</i>다</em></h1>
+        <p>오늘 하늘을 콕 기록하고, 지난 날씨를 찾아봐요.</p>
       </div>
     </div>
     <div class="account" id="account"><span class="who">계정 확인 중…</span></div>
   </header>
+  <div class="install" id="installBar" hidden>
+    <span id="installMsg">📲 날담을 앱으로 설치하면 홈 화면에서 바로 열 수 있어요.</span>
+    <button type="button" id="installBtn" class="primary">설치</button>
+    <button type="button" id="installX" class="ix" aria-label="닫기">✕</button>
+  </div>
 
   <div class="card now" id="nowCard">
     <div class="status" id="status">현재 위치를 확인하는 중…</div>
@@ -450,16 +546,16 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
           <button type="button" class="on" data-day="today" aria-pressed="true">오늘 날씨</button>
           <button type="button" data-day="yday" aria-pressed="false">🕘 어제 날씨</button>
         </div>
-        <textarea id="memo" placeholder="오늘 날씨 한 줄 메모 (예: 아침엔 쌀쌀, 우산 챙김)" rows="2"></textarea>
+        <textarea id="memo" placeholder="오늘 날씨 한 줄 메모" rows="1"></textarea>
         <div class="row">
           <button class="primary" id="saveBtn" type="button">기록하기</button>
-          <button id="locBtn" type="button">📍 위치</button>
+          <button id="locBtn" type="button"><span class="pinwrap"><svg class="pin" viewBox="5 2 14 18" aria-hidden="true"><path d="M12 18.5s-5.6-5.4-5.6-9.6a5.6 5.6 0 0 1 11.2 0c0 4.2-5.6 9.6-5.6 9.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8.9" r="2" fill="currentColor"/></svg><span class="pt">위치</span></span></button>
           <button id="refreshBtn" type="button">새로고침</button>
         </div>
       </div>
     </div>
     <div class="row" id="noLocRow" hidden style="margin-top:10px">
-      <button id="locBtn2" type="button">📍 내 위치 다시 찾기</button>
+      <button id="locBtn2" type="button"><span class="pinwrap"><svg class="pin" viewBox="5 2 14 18" aria-hidden="true"><path d="M12 18.5s-5.6-5.4-5.6-9.6a5.6 5.6 0 0 1 11.2 0c0 4.2-5.6 9.6-5.6 9.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8.9" r="2" fill="currentColor"/></svg><span class="pt">내 위치 다시 찾기</span></span></button>
       <span class="hint-s">또는 아래 <b>예보</b> 탭에서 지역을 검색할 수 있어요.</span>
     </div>
   </div>
@@ -477,7 +573,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
     </div>
     <p class="tabhint" id="tabHint" hidden>탭을 <b>끌어서</b> 옮기거나 ‹ › 를 눌러 순서를 바꿔요. 맨 앞 탭이 앱을 열 때 먼저 보여요.</p>
     <div class="placebar" id="placebar" hidden>
-      <input id="cityInput" type="search" placeholder="📍 지역 검색 (예: 대구 월성동)" autocomplete="off" aria-label="예보를 볼 지역 검색">
+      <label class="cityfield"><svg class="pin" viewBox="5 2 14 18" aria-hidden="true"><path d="M12 18.5s-5.6-5.4-5.6-9.6a5.6 5.6 0 0 1 11.2 0c0 4.2-5.6 9.6-5.6 9.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8.9" r="2" fill="currentColor"/></svg><input id="cityInput" type="search" placeholder="지역 검색 (예: ○○동)" autocomplete="off" aria-label="예보를 볼 지역 검색"></label>
       <button id="cityBtn" type="button">찾기</button>
     </div>
     <div class="recent" id="cityRecent"></div>
@@ -628,14 +724,21 @@ function windText(r){
 }
 /* 그날 최저·최고기온(평균)으로 옷차림 추천 + 비·바람·일교차 덧붙임 */
 const OUTFIT = [
-  [28, "🩳", "민소매에 반바지! 시원하게 입어"],
-  [23, "👕", "반팔에 얇은 셔츠면 딱 좋아"],
-  [20, "👔", "긴팔에 얇은 가디건 하나면 충분해"],
-  [17, "🧶", "얇은 니트나 맨투맨 입기 좋은 날이야"],
-  [12, "🧥", "자켓이나 가디건 하나 걸쳐"],
-  [9,  "🧥", "트렌치코트나 야상 꺼낼 때야"],
-  [5,  "🧣", "코트에 니트까지 챙겨 입어"],
-  [-99,"🧤", "패딩이랑 목도리로 꽁꽁 싸매!"]];
+  [28, "🩳", "민소매에 반바지! 시원하게 입어", "민소매·반바지"],
+  [23, "👕", "반팔에 얇은 셔츠면 딱 좋아", "반팔·셔츠"],
+  [20, "👔", "긴팔에 얇은 가디건 하나면 충분해", "긴팔·가디건"],
+  [17, "🧶", "얇은 니트나 맨투맨 입기 좋은 날이야", "니트·맨투맨"],
+  [12, "🧥", "자켓이나 가디건 하나 걸쳐", "자켓·가디건"],
+  [9,  "🧥", "트렌치코트나 야상 꺼낼 때야", "트렌치·야상"],
+  [5,  "🧣", "코트에 니트까지 챙겨 입어", "코트·니트"],
+  [-99,"🧤", "패딩이랑 목도리로 꽁꽁 싸매!", "패딩·목도리"]];
+/* 기록 목록용: 날씨 그림 아래 작은 옷 이모지 */
+function outfitBadge(r){
+  const hi = r.tmax!=null ? r.tmax : r.temp, lo = r.tmin!=null ? r.tmin : r.temp;
+  if(hi==null || lo==null) return "";
+  const o = OUTFIT.find(([t])=>(hi+lo)/2>=t);
+  return `<div class="obadge" title="${esc(o[2])}"><i>${o[1]}</i><span>${esc(o[3])}</span></div>`;
+}
 function outfitFor(d){
   if(!d || d.tmax==null || d.tmin==null) return null;
   const avg=(d.tmax+d.tmin)/2, o=OUTFIT.find(([t])=>avg>=t), extra=[];
@@ -662,6 +765,7 @@ const $ = id => document.getElementById(id);
 const cloudEnabled = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
 let current = null;
 let records = [];
+const selected = new Set();   // 꾸욱 눌러 고른 기록 (기록 탭·예보 탭 같이 씀)
 let fb = null;          // loaded Firebase modules + instances
 let user = null;        // signed-in Google user
 let unsub = null;       // Firestore listener
@@ -689,7 +793,7 @@ const inAppBrowser = /KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER\(inapp|everytim
 function renderAccount(){
   const box=$("account");
   if(!cloudEnabled){
-    box.innerHTML=`<span class="who">로그인 설정 전이라 기록이 이 기기에만 저장돼요.</span>`;
+    box.innerHTML=`<span class="who hint">로그인 설정 전이라 기록이 이 기기에만 저장돼요.</span>`;
     return;
   }
   if(!fb){ box.innerHTML=`<span class="who">계정 확인 중…</span>`; return; }
@@ -697,7 +801,7 @@ function renderAccount(){
     box.innerHTML=`<span class="who"><span class="ok">✓ 로그인됨</span> <b>${esc(user.displayName||"내 계정")}</b><span class="mail">${esc((user.email||"").replace("@","\u200b@"))}</span></span><button type="button" id="logoutBtn">로그아웃</button>`;
     $("logoutBtn").onclick=()=>fb.auth.signOut(fb.authInst);
   }else{
-    box.innerHTML=`<span class="who">로그인하면 기록이 구글 계정에 저장돼 어느 기기에서나 볼 수 있어요.</span><button type="button" class="gbtn" id="loginBtn">${G_ICON}Google로 로그인</button>`;
+    box.innerHTML=`<span class="who hint">로그인하면 기록이 구글 계정에 저장돼 어느 기기에서나 볼 수 있어요.</span><button type="button" class="gbtn" id="loginBtn">${G_ICON}Google로 로그인</button>`;
     $("loginBtn").onclick=login;
   }
 }
@@ -1012,7 +1116,7 @@ function memoPanel(day, sel){
   const H0=sel&&sel.tmax!=null?Math.round(sel.tmax):null, L0=sel&&sel.tmin!=null?Math.round(sel.tmin):null;
   const card = r => { const t=recHiLo(r), d=dayKey(r).split("-");
     const tag = (mpWide && t && H0!=null && (t.hi!==H0||t.lo!==L0)) ? ` <i class="mp-tag near">±1°</i>` : (mpWide && t && H0!=null ? ` <i class="mp-tag same">똑같음</i>` : "");
-    return `<li class="mp-item"><span class="ci k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</span>
+    return `<li class="mp-item${selected.has(r.id)?" sel":""}" data-id="${esc(r.id)}"><span class="check" aria-hidden="true"></span><span class="ci k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</span>
       <div class="mp-body"><div class="mp-meta"><b>${d[0].slice(2)}.${d[1]}.${d[2]}</b>${t?` <em class="lo">${t.lo}°</em> <em class="hi">${t.hi}°</em>`:""} <span>${esc(r.cond||"")}</span>${tag}</div>
       ${r.memo?`<div class="mp-memo">${esc(r.memo)}</div>`:`<div class="mp-memo none">메모 없음</div>`}</div></li>`; };
   const LIMIT=8, shown = mpShowAll ? same : same.slice(0,LIMIT);
@@ -1173,6 +1277,7 @@ function locate(){
    1) 오픈스트리트맵(Nominatim): 동네(동·읍·면)까지 찾아져요. 우리나라 안에서만 찾아요.
    2) 안 되면 Open-Meteo 지명 검색 (우리나라 결과만)
    최근에 고른 곳은 검색창 아래 버튼으로 바로 고를 수 있어요. */
+const PIN_SVG=`<svg class="pin" viewBox="5 2 14 18" aria-hidden="true"><path d="M12 18.5s-5.6-5.4-5.6-9.6a5.6 5.6 0 0 1 11.2 0c0 4.2-5.6 9.6-5.6 9.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="8.9" r="2" fill="currentColor"/></svg>`;
 const RECENT_KEY="naldam-recent-places";
 function loadRecent(){ try{ const a=JSON.parse(localStorage.getItem(RECENT_KEY)); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function saveRecentPlace(pl){
@@ -1187,7 +1292,7 @@ function choosePlace(pl){
 function renderRecent(){
   const box=$("cityRecent"); if(!box) return;
   const a=loadRecent();
-  box.innerHTML = a.length ? `<span>최근</span>`+a.map((p,i)=>`<button type="button" data-i="${i}">📍 ${esc(p.name)}</button>`).join("") : "";
+  box.innerHTML = a.length ? `<span>최근</span>`+a.map((p,i)=>`<button type="button" data-i="${i}"><span class="pinwrap">${PIN_SVG}<span class="pt">${esc(p.name)}</span></span></button>`).join("") : "";
   box.querySelectorAll("button").forEach(b=>b.onclick=()=>choosePlace(a[+b.dataset.i]));
 }
 function osmName(r){
@@ -1217,7 +1322,7 @@ async function searchCity(){
     list.sort((a,b)=>(b.pop||0)-(a.pop||0));
   }
   box.innerHTML="";
-  if(!list.length){ box.innerHTML=`<div class="res-note">검색 결과가 없어요. '대구 월성동'처럼 시·구 이름을 같이 넣어 보세요.</div>`; return; }
+  if(!list.length){ box.innerHTML=`<div class="res-note">검색 결과가 없어요. '○○시 ○○동'처럼 시·구 이름을 같이 넣어 보세요.</div>`; return; }
   list.slice(0,6).forEach(p=>{
     const b=document.createElement("button"); b.type="button"; b.textContent=p.name;
     b.onclick=()=>choosePlace(p);
@@ -1248,7 +1353,7 @@ function ydayDate(){ const d=new Date(); d.setDate(d.getDate()-1); return d; }
 function setRecDay(day){
   recDay=day;
   document.querySelectorAll(".daypick button").forEach(b=>{ const on=b.dataset.day===day; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); });
-  $("memo").placeholder = day==="yday" ? "어제 날씨 한 줄 메모 (예: 니트에 후리스 soso)" : "오늘 날씨 한 줄 메모 (예: 아침엔 쌀쌀, 우산 챙김)";
+  $("memo").placeholder = day==="yday" ? "어제 날씨 한 줄 메모" : "오늘 날씨 한 줄 메모";
   updateSaveLabel();
   if(current) renderNow();          // 어제를 고르면 renderNow 끝에서 어제 화면으로 바뀌어요
 }
@@ -1636,7 +1741,7 @@ function renderList(){
   list.innerHTML = shown.map(r=> r.id===editingId ? editForm(r) : `
     <div class="entry${selected.has(r.id)?" sel":""}" data-id="${esc(r.id)}">
       <span class="check" aria-hidden="true"></span>
-      <div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>
+      <div class="icwrap"><div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>${outfitBadge(r)}</div>
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
         <div class="chips">${(r.tmax!=null&&r.tmin!=null)?`<span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span>`:""}<span class="srctag ${r.edited?"ed":r.src==="kma"?"kma":r.src==="memo"?"memo":r.src==="past"?"past":""}">${r.edited?"직접 수정":r.src==="kma"?"기상청":r.src==="memo"?"옛 메모":r.src==="past"?"지난 날씨":"예보 기준"}</span></div>
@@ -1712,7 +1817,6 @@ $("list").addEventListener("click", async e=>{
 
 /* ---------- long-press to select, then delete ---------- */
 let selectMode=false, justLongPressed=false, pressTimer=null, pressXY=null;
-const selected=new Set();
 function toggleSelect(id){
   if(selected.has(id)) selected.delete(id); else selected.add(id);
   if(!selected.size) exitSelect(); else { renderList(); renderSelBar(); }
@@ -1732,24 +1836,39 @@ function renderSelBar(){
   $("selCount").textContent=`${selected.size}개 선택됨`;
   $("selEdit").hidden = selected.size!==1;
 }
-$("list").addEventListener("pointerdown", e=>{
-  const card=e.target.closest(".entry[data-id]");
-  if(!card || e.target.closest("button,input,select,textarea,form") || (e.pointerType==="mouse" && e.button!==0)) return;
-  pressXY=[e.clientX,e.clientY];
-  justLongPressed=false;
-  clearTimeout(pressTimer);
-  pressTimer=setTimeout(()=>{ pressTimer=null; justLongPressed=true;
-    if(selectMode) toggleSelect(card.dataset.id); else enterSelect(card.dataset.id);
-  }, 550);
+/* 기록 탭의 카드(.entry)와 예보 탭의 기록 카드(.mp-item) 둘 다 꾸욱 눌러 고를 수 있어요 */
+const SEL_CARD=".entry[data-id], .mp-item[data-id]";
+["list","paneFc"].forEach(boxId=>{
+  const box=$(boxId);
+  box.addEventListener("pointerdown", e=>{
+    const card=e.target.closest(SEL_CARD);
+    if(!card || e.target.closest("button,input,select,textarea,form") || (e.pointerType==="mouse" && e.button!==0)) return;
+    pressXY=[e.clientX,e.clientY];
+    justLongPressed=false;
+    clearTimeout(pressTimer);
+    pressTimer=setTimeout(()=>{ pressTimer=null; justLongPressed=true;
+      if(selectMode) toggleSelect(card.dataset.id); else enterSelect(card.dataset.id);
+    }, 550);
+  });
+  box.addEventListener("pointermove", e=>{ if(pressXY && Math.hypot(e.clientX-pressXY[0], e.clientY-pressXY[1])>10) cancelPress(); });
+  ["pointerup","pointercancel","pointerleave"].forEach(t=>box.addEventListener(t, cancelPress));
+  box.addEventListener("contextmenu", e=>{ if(e.target.closest(SEL_CARD)) e.preventDefault(); });
 });
-const cancelPress=()=>{ clearTimeout(pressTimer); pressTimer=null; };
-$("list").addEventListener("pointermove", e=>{ if(pressXY && Math.hypot(e.clientX-pressXY[0], e.clientY-pressXY[1])>10) cancelPress(); });
-["pointerup","pointercancel","pointerleave"].forEach(t=>$("list").addEventListener(t, cancelPress));
-$("list").addEventListener("contextmenu", e=>{ if(e.target.closest(".entry[data-id]")) e.preventDefault(); });
+$("paneFc").addEventListener("click", e=>{
+  const card=e.target.closest(".mp-item[data-id]");
+  if(card && (selectMode || justLongPressed)){
+    e.preventDefault(); e.stopPropagation();
+    if(justLongPressed){ justLongPressed=false; return; }
+    toggleSelect(card.dataset.id);
+  }
+}, true);
+function cancelPress(){ clearTimeout(pressTimer); pressTimer=null; }
 $("selCancel").onclick=exitSelect;
-$("selAll").onclick=()=>{ const {shown}=filterRecords(); const all=shown.every(r=>selected.has(r.id));
-  if(all){ exitSelect(); return; } shown.forEach(r=>selected.add(r.id)); renderList(); renderSelBar(); };
-$("selEdit").onclick=()=>{ const id=[...selected][0]; exitSelect(); editingId=id; renderList(); };
+$("selAll").onclick=()=>{
+  const ids = activeTab==="fc" ? [...document.querySelectorAll("#paneFc .mp-item[data-id]")].map(x=>x.dataset.id) : filterRecords().shown.map(r=>r.id);
+  if(ids.every(id=>selected.has(id))){ exitSelect(); return; } ids.forEach(id=>selected.add(id)); renderList(); renderSelBar(); };
+$("selEdit").onclick=()=>{ const id=[...selected][0]; exitSelect(); if(activeTab==="fc") setTab("diary"); editingId=id; renderList();
+  const el=document.querySelector(".entry.editing"); if(el) el.scrollIntoView({block:"center"}); };
 $("selDelete").onclick=()=>{ $("selMain").hidden=true; $("selConfirm").hidden=false; $("selAsk").textContent=`기록 ${selected.size}개를 지울까요? 되돌릴 수 없어요.`; };
 $("selNo").onclick=renderSelBar;
 $("selYes").onclick=async ()=>{
@@ -1787,6 +1906,7 @@ $("locBtn").onclick=locate;
 $("locBtn2").onclick=locate;
 $("cityBtn").onclick=searchCity;
 renderRecent();
+$("memo").addEventListener("input", e=>{ const t=e.target; t.style.height="auto"; t.style.height=Math.min(t.scrollHeight+4,160)+"px"; });
 $("cityInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); searchCity(); } });
 $("q").addEventListener("input", renderList);
 $("qField").addEventListener("change", ()=>{ renderList(); $("q").focus(); });
@@ -1866,6 +1986,27 @@ renderAccount();
 if(tabOrder0[0]!=="diary") setTab(tabOrder0[0]); else renderList();
 locate();
 if(cloudEnabled) initCloud();
+
+/* ---------- 앱(홈 화면)으로 설치 ---------- */
+(function(){
+  const isStandalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  if("serviceWorker" in navigator && location.protocol==="https:"){
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  }
+  if(isStandalone) return;
+  const KEY="naldam-install-hide";
+  let hidden=false; try{ hidden = localStorage.getItem(KEY)==="1"; }catch(e){}
+  if(hidden) return;
+  const bar=$("installBar"), btn=$("installBtn");
+  let deferred=null;
+  window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); deferred=e; bar.hidden=false; btn.hidden=false; });
+  btn.onclick=async ()=>{ if(!deferred) return; deferred.prompt(); const r=await deferred.userChoice.catch(()=>null); deferred=null; bar.hidden=true; };
+  $("installX").onclick=()=>{ bar.hidden=true; try{ localStorage.setItem(KEY,"1"); }catch(e){} };
+  window.addEventListener("appinstalled", ()=>{ bar.hidden=true; });
+  // 아이폰·아이패드 사파리는 설치 버튼이 없어서 방법을 알려줘요
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent) && !/CriOS|FxiOS/i.test(navigator.userAgent);
+  if(ios){ $("installMsg").textContent="📲 아래 공유 버튼(⬆️) → '홈 화면에 추가'를 누르면 앱처럼 쓸 수 있어요."; btn.hidden=true; bar.hidden=false; }
+})();
 </script>
 </body>
 </html>

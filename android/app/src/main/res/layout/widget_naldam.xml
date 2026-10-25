@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 날담 위젯: 크기에 따라 NaldamWidget.java 가 줄(시간·날씨·최고최저·문장·바람)을 보이거나 숨겨요 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_none"
+    android:orientation="vertical"
+    android:paddingLeft="14dp"
+    android:paddingTop="10dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="10dp">
+
+    <!-- 1줄: ● 지역 ····· 시간 ↻ -->
+    <LinearLayout
+        android:id="@+id/rowTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/dot_pink" />
+
+        <TextView
+            android:id="@+id/place"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="날담"
+            android:textColor="@color/ink"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:background="@drawable/time_pill"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:paddingLeft="8dp"
+            android:paddingTop="3dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="3dp"
+            android:textColor="@color/muted"
+            android:textSize="10.5sp" />
+
+        <ImageView
+            android:id="@+id/refresh"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginLeft="2dp"
+            android:contentDescription="새로고침"
+            android:padding="5dp"
+            android:src="@drawable/ic_refresh" />
+    </LinearLayout>
+
+    <!-- 2줄: 날씨 그림 + 기온·날씨·최고최저 -->
+    <LinearLayout
+        android:id="@+id/rowMain"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iconBig"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginRight="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wx_part" />
+
+        <ImageView
+            android:id="@+id/iconSmall"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="6dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wx_part"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="--"
+                    android:textColor="@color/ink"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/cond"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/ink"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowHiLo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/hi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/chip_hi"
+                    android:includeFontPadding="false"
+                    android:paddingLeft="9dp"
+                    android:paddingTop="3dp"
+                    android:paddingRight="9dp"
+                    android:paddingBottom="3dp"
+                    android:textColor="#D4475A"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/lo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/chip_lo"
+                    android:includeFontPadding="false"
+                    android:paddingLeft="9dp"
+                    android:paddingTop="3dp"
+                    android:paddingRight="9dp"
+                    android:paddingBottom="3dp"
+                    android:textColor="#3A7BC8"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/src"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/chip_src"
+                    android:includeFontPadding="false"
+                    android:paddingLeft="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingRight="8dp"
+                    android:paddingBottom="3dp"
+                    android:text="기상청 기준"
+                    android:textColor="#2F6FAE"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 3줄: 한마디 -->
+    <TextView
+        android:id="@+id/chat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="@color/muted"
+        android:textSize="12.5sp" />
+
+    <!-- 4줄: 바람 -->
+    <TextView
+        android:id="@+id/wind"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        android:maxLines="2"
+        android:textColor="@color/muted"
+        android:textSize="12.5sp" />
+</LinearLayout>

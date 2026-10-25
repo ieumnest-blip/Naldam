@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">날담</string>
+    <string name="widget_name">날담 날씨</string>
+    <string name="widget_desc">지금 있는 곳의 날씨와 바람을 보여줘요. 크기를 줄이면 내용이 알아서 줄어요.</string>
+    <string name="launch_url">https://ieumnest-blip.github.io/Naldam/</string>
+    <string name="asset_statements" translatable="false">[{\"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": {\"namespace\": \"web\", \"site\": \"https://ieumnest-blip.github.io\"}}]</string>
+</resources>

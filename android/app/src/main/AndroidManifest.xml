@@ -32,7 +32,7 @@
 
         <!-- 앱 화면: 날담 웹사이트를 크롬으로 꽉 차게 띄움 -->
         <activity
-            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+            android:name=".NaldamLauncher"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/LaunchTheme">

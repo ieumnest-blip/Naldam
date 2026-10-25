@@ -1284,12 +1284,35 @@ function renderNow(){
   $("cloud").textContent= c.cloud!=null ? `${c.cloud}%` : "–";
   if(recDay==="yday") loadYesterday();   // 위치가 바뀌면 어제 날씨도 다시
 }
+/* 날담 앱(안드로이드)으로 열면 폰이 찾은 위치가 주소에 같이 와요 (?lat=..&lon=..).
+   받은 위치는 기억해 두고, 브라우저가 위치를 못 잡을 때 대신 써요. */
+const APP_LL_KEY="naldam-app-ll";
+let appLL=(()=>{
+  try{
+    const q=new URLSearchParams(location.search), la=parseFloat(q.get("lat")), lo=parseFloat(q.get("lon"));
+    if(isFinite(la)&&isFinite(lo)){
+      const v={lat:la,lon:lo,t:Date.now()};
+      try{ localStorage.setItem(APP_LL_KEY, JSON.stringify(v)); }catch(e){}
+      q.delete("lat"); q.delete("lon");   // 주소창에서는 지워요
+      history.replaceState(null,"",location.pathname+(q.toString()?"?"+q:"")+location.hash);
+      v.fresh=true; return v;
+    }
+    const v=JSON.parse(localStorage.getItem(APP_LL_KEY));
+    return v&&isFinite(v.lat)?v:null;
+  }catch(e){ return null; }
+})();
 function locate(){
-  if(!("geolocation" in navigator)){ setStatus("이 브라우저는 위치 기능을 지원하지 않아요. 아래에서 지역을 검색해 주세요.", true); return; }
+  // 앱이 방금 넘겨준 위치가 있으면 바로 써요 (위치 묻는 창 없이)
+  if(appLL&&appLL.fresh){ appLL.fresh=false; fetchWeather(appLL.lat, appLL.lon); return; }
+  if(!("geolocation" in navigator)){
+    if(appLL){ fetchWeather(appLL.lat, appLL.lon); return; }
+    setStatus("이 브라우저는 위치 기능을 지원하지 않아요. 아래에서 지역을 검색해 주세요.", true); return;
+  }
   setStatus("현재 위치를 확인하는 중…");
   navigator.geolocation.getCurrentPosition(
     p => fetchWeather(p.coords.latitude, p.coords.longitude),
-    err => { $("noLocRow").hidden = !$("nowBody").hidden; setStatus(err.code===1
+    err => { if(appLL){ fetchWeather(appLL.lat, appLL.lon); return; }
+      $("noLocRow").hidden = !$("nowBody").hidden; setStatus(err.code===1
       ? "위치 권한이 꺼져 있어요. 브라우저 설정에서 위치를 허용하거나, 아래 예보 탭에서 지역을 검색해 주세요."
       : "위치를 찾지 못했어요. 잠시 후 '내 위치'를 다시 누르거나 예보 탭에서 지역을 검색해 주세요.", true); },
     {enableHighAccuracy:false, timeout:12000, maximumAge:300000}

@@ -74,6 +74,14 @@
             android:contentDescription="새로고침"
             android:padding="5dp"
             android:src="@drawable/ic_refresh" />
+
+        <ImageView
+            android:id="@+id/settings"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:contentDescription="위젯 꾸미기"
+            android:padding="5dp"
+            android:src="@drawable/ic_settings" />
     </LinearLayout>
 
     <!-- 2줄: 날씨 그림 + 기온·날씨·최고최저 -->

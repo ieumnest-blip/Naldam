@@ -84,6 +84,10 @@ public class NaldamWidget extends AppWidgetProvider {
             new Intent(ctx, RefreshActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK),
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         v.setOnClickPendingIntent(R.id.refresh, refresh);
+        PendingIntent look = PendingIntent.getActivity(ctx, 3,
+            new Intent(ctx, WidgetSettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK),
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        v.setOnClickPendingIntent(R.id.settings, look);
 
         if (w == null) {
             v.setImageViewResource(R.id.bgImg, R.drawable.bg_none);
@@ -181,6 +185,9 @@ public class NaldamWidget extends AppWidgetProvider {
         v.setTextColor(R.id.chat, muted);
         v.setTextColor(R.id.wind, muted);
         v.setTextColor(R.id.rain, white ? 0xFFBFE0FF : 0xFF3A7BC8);
+        int tint = white ? 0xFFFFFFFF : 0xFF8A84A3;
+        v.setInt(R.id.refresh, "setColorFilter", tint);
+        v.setInt(R.id.settings, "setColorFilter", tint);
     }
 
     private static Intent launchIntent(Context ctx) {

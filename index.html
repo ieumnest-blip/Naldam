@@ -1139,11 +1139,11 @@ function memoPanel(day, sel){
   }
   if(!mine.length && !(sel && sel.tmax!=null)) return "";
   const H0=sel&&sel.tmax!=null?Math.round(sel.tmax):null, L0=sel&&sel.tmin!=null?Math.round(sel.tmin):null;
-  /* 옛날 기록의 바람: "💨 2.1m/s(북동풍) · 돌풍 4.7m/s" 한 줄로 */
+  /* 옛날 기록의 바람: "💨돌풍 4.7 · 바람 2.1m/s" 한 줄로 (돌풍 먼저, 풍향은 빼요) */
   const mpWind = r => { const v=r.wind!=null?r.wind:r.windMax, g=r.gustMax; if(v==null&&g==null) return "";
-    const a = v!=null ? `${r.wind!=null?"":"최대"}${Number(v).toFixed(1)}m/s${r.wind!=null&&r.windDir!=null?`<small>(${dirName(r.windDir)})</small>`:""}` : "";
-    const b = g!=null ? `돌풍${Number(g).toFixed(1)}` : "";
-    return `<span class="mp-wind">💨${[a,b].filter(Boolean).join(" ")}</span>`; };
+    const b = g!=null ? `돌풍 ${Number(g).toFixed(1)}` : "";
+    const a = v!=null ? `${r.wind!=null?"바람":"최대"} ${Number(v).toFixed(1)}m/s` : "";
+    return `<span class="mp-wind">💨${[b,a].filter(Boolean).join(" · ")}</span>`; };
   const card = r => { const t=recHiLo(r), d=dayKey(r).split("-");
     const tag = (mpWide && t && H0!=null && (t.hi!==H0||t.lo!==L0)) ? ` <i class="mp-tag near">±1°</i>` : (mpWide && t && H0!=null ? ` <i class="mp-tag same">똑같음</i>` : "");
     return `<li class="mp-item${selected.has(r.id)?" sel":""}" data-id="${esc(r.id)}"><span class="check" aria-hidden="true"></span><span class="ci k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</span>
@@ -1208,7 +1208,7 @@ function fitMeta(root){
   root.querySelectorAll(".mp-meta").forEach(m=>{
     if(!m.clientWidth) return;
     let f=12.5; m.style.fontSize=""; m.classList.add("fit");
-    while(m.scrollWidth>m.clientWidth+1 && f>9){ f-=.5; m.style.fontSize=f+"px"; }
+    while(m.scrollWidth>m.clientWidth+1 && f>8){ f-=.5; m.style.fontSize=f+"px"; }
     m.classList.remove("fit");
   });
 }

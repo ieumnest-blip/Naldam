@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 날담 위젯: 크기에 따라 NaldamWidget.java 가 줄(시간·날씨·최고최저·문장·바람)을 보이거나 숨겨요 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 배경 (투명도를 바꿀 수 있게 그림으로 깔아요) -->
+    <ImageView
+        android:id="@+id/bgImg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_none" />
+
+<LinearLayout
+    android:id="@+id/content"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_none"
     android:orientation="vertical"
     android:paddingLeft="14dp"
     android:paddingTop="10dp"
@@ -216,3 +228,4 @@
         android:textColor="@color/muted"
         android:textSize="12.5sp" />
 </LinearLayout>
+</FrameLayout>

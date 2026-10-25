@@ -86,7 +86,8 @@ public class NaldamWidget extends AppWidgetProvider {
         v.setOnClickPendingIntent(R.id.refresh, refresh);
 
         if (w == null) {
-            v.setInt(R.id.root, "setBackgroundResource", R.drawable.bg_none);
+            v.setImageViewResource(R.id.bgImg, R.drawable.bg_none);
+            applyLook(ctx, v);
             v.setTextViewText(R.id.place, "날담");
             v.setViewVisibility(R.id.time, View.GONE);
             v.setTextViewText(R.id.temp, "--");
@@ -105,7 +106,8 @@ public class NaldamWidget extends AppWidgetProvider {
         v.setOnClickPendingIntent(R.id.root, openApp);
 
         String kind = Weather.kindOf(w.code);
-        v.setInt(R.id.root, "setBackgroundResource", bgRes(kind));
+        v.setImageViewResource(R.id.bgImg, bgRes(kind));
+        applyLook(ctx, v);
         int icon = iconRes(kind);
         v.setImageViewResource(R.id.iconBig, icon);
         v.setImageViewResource(R.id.iconSmall, icon);
@@ -163,6 +165,22 @@ public class NaldamWidget extends AppWidgetProvider {
         if (wf != null) v.setTextViewText(R.id.wind, "💨 지금 " + wf[0] + "; " + wf[1]);
 
         mgr.updateAppWidget(id, v);
+    }
+
+    /** 위젯 설정(배경 진하기, 글자색)을 적용해요 */
+    static void applyLook(Context ctx, RemoteViews v) {
+        android.content.SharedPreferences sp = ctx.getSharedPreferences(Weather.PREFS, Context.MODE_PRIVATE);
+        int alphaPct = sp.getInt("bgAlpha", 100);          // 0 = 완전 투명, 100 = 원래 색
+        boolean white = sp.getBoolean("textWhite", false);  // 배경이 투명할 때 흰 글자가 잘 보여요
+        v.setInt(R.id.bgImg, "setImageAlpha", Math.round(alphaPct * 2.55f));
+        int ink = white ? 0xFFFFFFFF : 0xFF3A3352;
+        int muted = white ? 0xE6FFFFFF : 0xFF8A84A3;
+        v.setTextColor(R.id.place, ink);
+        v.setTextColor(R.id.temp, ink);
+        v.setTextColor(R.id.cond, ink);
+        v.setTextColor(R.id.chat, muted);
+        v.setTextColor(R.id.wind, muted);
+        v.setTextColor(R.id.rain, white ? 0xFFBFE0FF : 0xFF3A7BC8);
     }
 
     private static Intent launchIntent(Context ctx) {

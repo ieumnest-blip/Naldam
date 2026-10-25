@@ -88,6 +88,18 @@
             android:taskAffinity=""
             android:theme="@style/TransparentTheme" />
 
+        <!-- 위젯 꾸미기 (위젯을 길게 누르고 '설정') -->
+        <activity
+            android:name=".WidgetSettingsActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="날담 위젯 꾸미기"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <!-- 홈 화면 위젯 -->
         <receiver
             android:name=".NaldamWidget"

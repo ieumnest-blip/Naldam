@@ -379,7 +379,7 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .entry{display:grid;grid-template-columns:56px 1fr auto;gap:2px 12px;padding:12px 14px;background:var(--surface);border-radius:22px;box-shadow:var(--shadow);align-items:center}
 .entry .icwrap{grid-row:1 / span 3;align-self:stretch;display:flex;flex-direction:column;align-items:center;gap:6px}
 /* 추천 옷: 날씨 그림 아래 ~ 메모 위 사이에서 위아래 여백이 같게 가운데로 */
-.entry .icwrap .obadge{margin:auto 0}
+.entry .icwrap .obadge{margin:auto 0;position:relative;top:3px} /* 글자 아래 빈 공간까지 따져서 위아래 여백이 똑같아 보이게 살짝 내려요 */
 .obadge{display:flex;flex-direction:column;align-items:center;font-size:10px;line-height:1.2;color:var(--accent-deep);text-align:center;width:56px}
 .obadge span{white-space:nowrap;letter-spacing:-.04em;margin:0 -6px}
 .obadge i{font-style:normal;font-size:22px;line-height:1.1;margin-bottom:1px}

@@ -377,7 +377,9 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .list{display:flex;flex-direction:column;gap:10px}
 .entry{display:grid;grid-template-columns:56px 1fr auto;gap:2px 12px;padding:12px 14px;background:var(--surface);border-radius:22px;box-shadow:var(--shadow);align-items:center}
-.entry .icwrap{grid-row:1 / span 3;align-self:start;display:flex;flex-direction:column;align-items:center;gap:6px}
+.entry .icwrap{grid-row:1 / span 3;align-self:stretch;display:flex;flex-direction:column;align-items:center;gap:6px}
+/* 추천 옷: 날씨 그림 아래 ~ 메모 위 사이에서 위아래 여백이 같게 가운데로 */
+.entry .icwrap .obadge{margin:auto 0}
 .obadge{display:flex;flex-direction:column;align-items:center;font-size:10px;line-height:1.2;color:var(--accent-deep);text-align:center;width:56px}
 .obadge span{white-space:nowrap;letter-spacing:-.04em;margin:0 -6px}
 .obadge i{font-style:normal;font-size:22px;line-height:1.1;margin-bottom:1px}
@@ -1814,10 +1816,12 @@ function renderList(){
   if(!records.length){ list.innerHTML=`<div class="empty">${weatherIcon("sun")}<span>아직 기록이 없어요.<br>위에서 ‘기록하기’를 누르면 여기에 차곡차곡 쌓여요.</span></div>`; return; }
   if(!shown.length){ list.innerHTML=`<div class="empty">${weatherIcon("fog")}<span>조건에 맞는 기록이 없어요.<br>검색어나 조건을 바꿔 볼까요?</span></div>`; return; }
   const hits = r => tq ? tempHits(r,tq) : new Set();
+  // 왼쪽 칸(날씨 그림 + 추천 옷)이 메모 위 줄까지 이어지게: 제목 줄 + 날짜 줄 + 바람 줄 수
+  const icRows = r => 2 + (windText(r).match(/class="windline"/g)||[]).length;
   list.innerHTML = shown.map(r=> r.id===editingId ? editForm(r) : `
     <div class="entry${selected.has(r.id)?" sel":""}" data-id="${esc(r.id)}">
       <span class="check" aria-hidden="true"></span>
-      <div class="icwrap"><div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>${outfitBadge(r)}</div>
+      <div class="icwrap" style="grid-row:1 / span ${icRows(r)}"><div class="ic k-${kindOf(r.code)}">${weatherIcon(kindOf(r.code))}</div>${outfitBadge(r)}</div>
       <div class="body">
         <div class="title">${hl(r.cond,q)} · ${hl(r.place,q)}</div>
         <div class="chips">${(r.tmax!=null&&r.tmin!=null)?`<span class="hi${hits(r).has("max")?" hit":""}">최고 ${Math.round(r.tmax)}°</span><span class="lo${hits(r).has("min")?" hit":""}">최저 ${Math.round(r.tmin)}°</span>`:""}<span class="srctag ${r.edited?"ed":r.src==="kma"?"kma":r.src==="memo"?"memo":r.src==="past"?"past":""}">${r.edited?"직접 수정":r.src==="kma"?"기상청":r.src==="memo"?"옛 메모":r.src==="past"?"지난 날씨":"예보 기준"}</span></div>

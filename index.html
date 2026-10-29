@@ -2,50 +2,6 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<script>
-/* ---------- 앱에서만 열기 ----------
-   날담은 안드로이드 앱(Google Play)에서만 쓸 수 있어요.
-   앱이 열 때는 주소에 from=app 이 붙거나, 앱이 보낸 표시(android-app://com.naldam.app)가 와요.
-   한 번 앱에서 열리면 그 창(탭)이 닫힐 때까지는 새로고침·로그인 후에도 계속 열려요.
-   그냥 인터넷 창으로 들어오면 "앱에서 이용해 주세요" 안내만 보여요. */
-(function(){
-  var PLAY_URL = "";   // Google Play에 올리면 여기에 날담 주소를 넣어요 → 안내 화면에 '설치하러 가기' 버튼이 생겨요
-  var ok = false;
-  try{ ok = sessionStorage.getItem("naldam-app")==="1"; }catch(e){}
-  var ref = document.referrer || "";
-  var q = new URLSearchParams(location.search);
-  if(ref.indexOf("android-app://com.naldam.app")===0 || q.get("from")==="app"){
-    ok = true; try{ sessionStorage.setItem("naldam-app","1"); }catch(e){}
-  }
-  if(q.has("from")){ q.delete("from"); history.replaceState(null,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
-  if(ok) return;
-  window.NALDAM_WEB_BLOCKED = true;
-  document.documentElement.className += " webgate";
-  document.addEventListener("DOMContentLoaded", function(){
-    document.body.innerHTML =
-      '<main class="gate">'
-      + '<svg class="gate-logo" viewBox="0 0 64 64" aria-hidden="true"><circle cx="40" cy="22" r="9" fill="#ffd36b"/><path d="M18 46h28a10 10 0 0 0 0-20 13 13 0 0 0-25 3 9 9 0 0 0-3 17z" fill="#fff" stroke="#c9d6f0" stroke-width="2"/><circle cx="27" cy="37" r="1.6" fill="#3a3552"/><circle cx="35" cy="37" r="1.6" fill="#3a3552"/><path d="M28.5 41q2.5 2 5 0" stroke="#3a3552" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>'
-      + '<h1><span>날</span>담</h1>'
-      + '<p class="gate-big">날담은 이제 <b>앱</b>에서 만나요</p>'
-      + '<p>갤럭시(안드로이드) 폰에 날담 앱을 설치해서 이용해 주세요.<br>그동안 쓴 기록은 앱에서 <b>같은 구글 계정</b>으로 로그인하면 그대로 있어요.</p>'
-      + (PLAY_URL ? '<a class="gate-btn" href="'+PLAY_URL+'">Google Play에서 설치하기</a>' : '<p class="gate-soon">곧 Google Play에서 만날 수 있어요 ☀️</p>')
-      + '</main>';
-  });
-})();
-</script>
-<style>
-html.webgate body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(160deg,#eaf3ff,#fdf0f6);color:#3a3552;font-family:"Gaegu","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
-.gate{max-width:420px;margin:24px 16px;word-break:keep-all;padding:32px 24px;background:#fff;border-radius:28px;box-shadow:0 10px 30px rgba(120,110,170,.15);text-align:center;line-height:1.6}
-.gate-logo{width:84px;height:84px}
-.gate h1{margin:4px 0 8px;font-size:44px;line-height:1;font-family:"Gaegu",system-ui,sans-serif;font-weight:700}
-.gate h1 span{color:#e85d86}
-.gate p{margin:8px 0;font-size:15px;color:#6f6a8a}
-.gate .gate-big{font-size:21px;color:#3a3552}
-.gate .gate-big b{color:#e85d86}
-.gate .gate-soon{margin-top:16px;font-size:14px}
-.gate-btn{display:inline-block;margin-top:16px;padding:12px 22px;border-radius:99px;background:#ff7fa3;color:#fff;text-decoration:none;font-weight:700}
-@media (prefers-color-scheme:dark){html.webgate body{background:#1f1d2b}.gate{background:#2b2840;color:#eeeaff}.gate h1,.gate .gate-big{color:#eeeaff}.gate p{color:#b8b3d6}}
-</style>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>날담</title>
 <meta name="description" content="날담(Naldam) · 날씨를 담다 · 지금 있는 곳의 날씨를 기록하는 날씨 일기장">
@@ -704,7 +660,6 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
     }
 -->
 <script type="module">
-if(window.NALDAM_WEB_BLOCKED) throw new Error("날담은 앱에서만 열려요");
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAgABGN-semOVpksLZRMwPUFKlwjOloqXM",
   authDomain: "naldam-160e6.firebaseapp.com",
@@ -2118,7 +2073,6 @@ if(cloudEnabled) initCloud();
   if("serviceWorker" in navigator && location.protocol==="https:"){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
   }
-  return; // 이제 Google Play 앱으로만 써서 '홈 화면에 설치' 안내는 보여주지 않아요
   if(isStandalone) return;
   const KEY="naldam-install-hide";
   let hidden=false; try{ hidden = localStorage.getItem(KEY)==="1"; }catch(e){}

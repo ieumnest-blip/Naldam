@@ -794,6 +794,11 @@ function fmtDate(iso){
   const d=new Date(iso), p=n=>String(n).padStart(2,"0");
   return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
+// 기록 목록용: "2026.10.26(월) 08:08" — 날짜 뒤에 요일
+function fmtDateW(iso, noTime){
+  const d=new Date(iso), w="일월화수목금토"[d.getDay()], t=fmtDate(iso);
+  return t.slice(0,10)+`(${w})`+(noTime?"":t.slice(10));
+}
 function esc(s){ return String(s).replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
 function hl(text, q){
   const t=esc(text); if(!q) return t;
@@ -1881,7 +1886,7 @@ function renderList(){
         <div class="t${hits(r).has("now")?" hit":""}" title="기록할 때 기온">${r.temp!=null?Math.round(r.temp)+"°":""}</div>
         <button class="edit" type="button" data-id="${esc(r.id)}">✎ 수정</button>
       </div>
-      <div class="meta">${[(r.src==="memo"||r.src==="past")?fmtDate(r.at).slice(0,10):fmtDate(r.at), (r.psum??r.rain)>0?`강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:"", r.hum!=null?`습도 ${r.hum}%`:""].filter(Boolean).join(" · ")}</div>
+      <div class="meta">${[fmtDateW(r.at, r.src==="memo"||r.src==="past"), (r.psum??r.rain)>0?`강수 ${Math.round((r.psum??r.rain)*10)/10}mm`:"", r.hum!=null?`습도 ${r.hum}%`:""].filter(Boolean).join(" · ")}</div>
       ${windText(r)}
       ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
     </div>`).join("");

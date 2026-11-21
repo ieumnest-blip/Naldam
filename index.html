@@ -393,10 +393,12 @@ td.hi{color:#d4475a} td.lo{color:#3a7bc8}
 .entry .windline{grid-column:2/-1;font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;word-break:keep-all}
 .entry .windline b{color:#3a8f9a;font-weight:700}
 .hilo{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.hilo span,.entry .chips span{font-size:13px;border-radius:99px;padding:2px 10px;font-variant-numeric:tabular-nums}
+.hilo span{font-size:13px;border-radius:99px;padding:2px 10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.entry .chips span{font-size:1em;border-radius:99px;padding:.15em .75em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .hilo .hi,.entry .chips .hi{background:color-mix(in srgb,#ff7a7a 18%,var(--surface));color:#d4475a}
 .hilo .lo,.entry .chips .lo{background:color-mix(in srgb,var(--rain) 20%,var(--surface));color:#3a7bc8}
-.entry .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center}
+.entry .chips{display:flex;gap:.45em;flex-wrap:nowrap;margin-top:4px;align-items:center;min-width:0;font-size:13px}
+.entry .chips .srctag{font-size:.88em;padding:0 .7em}
 .srctag,.srcchip{font-size:11.5px;color:var(--muted);border:1.5px dashed var(--line);border-radius:99px;padding:0 8px}
 .srcchip{font-size:12px;padding:1px 10px}
 .srctag.kma,.srcchip.kma{color:#2f6fae;border-color:color-mix(in srgb,#3879b8 40%,transparent);border-style:solid}
@@ -1275,6 +1277,15 @@ function fitMeta(root){
   });
 }
 let fitRO=null;
+/* 기록 카드의 최고·최저·출처 칸이 한 줄에 다 들어가게, 넘치면 글자를 조금씩 줄여요 */
+function fitChips(root){
+  root.querySelectorAll(".entry .chips").forEach(c=>{
+    if(!c.clientWidth) return;
+    let f=13; c.style.fontSize="";
+    while(c.scrollWidth>c.clientWidth+1 && f>9){ f-=.5; c.style.fontSize=f+"px"; }
+  });
+}
+let chipRO=null;
 function renderCalendar(){
   const pane=$("paneFc"); if(!pane || pane.hidden) return;
   const oldF=$("calRecForm"), draft = oldF && calRec===oldF.dataset.day ? { cond:oldF.cond.value, tmax:oldF.tmax.value, tmin:oldF.tmin.value, psum:oldF.psum.value, memo:oldF.memo.value } : null;
@@ -1890,6 +1901,8 @@ function renderList(){
       ${windText(r)}
       ${r.memo?`<div class="memo">${hl(r.memo,q)}</div>`:""}
     </div>`).join("");
+  fitChips(list);
+  if(!chipRO && window.ResizeObserver){ chipRO=new ResizeObserver(()=>fitChips(list)); chipRO.observe(list); }
   const f=list.querySelector(".editf"); if(f && !f.dataset.focused){ f.dataset.focused="1"; }
 }
 /* ---------- edit a record ---------- */

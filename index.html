@@ -192,6 +192,18 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .temp .thi{color:#d4475a}
 .wdir{font-size:.9em;font-weight:inherit;margin-left:2px}
 .grid b .wdir{display:block;margin:0}
+.rainbars{margin:10px 0 2px;padding:10px 12px 8px;border-radius:16px;background:color-mix(in srgb,var(--rain) 8%,var(--surface));border:1.5px solid color-mix(in srgb,var(--rain) 22%,transparent)}
+.rainbars .rb-top{font-size:13px;color:var(--muted);margin-bottom:4px}
+.rainbars .rb-top b{color:#3a7bc8}
+.rainbars .rb-bars{display:flex;align-items:flex-end;gap:2px;height:60px;border-bottom:1.5px solid var(--line)}
+.rainbars .rb{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.rainbars .rb em{font-style:normal;font-size:8.5px;letter-spacing:-.6px;line-height:1;color:#2f6fae;margin-bottom:2px;white-space:nowrap}
+.rainbars .rb i{display:block;width:100%;background:#7fb2ec;border-radius:3px 3px 0 0}
+.rainbars .rb.z i{background:var(--line)}
+.rainbars .rb.past i{opacity:.55}
+.rainbars .rb.past em{opacity:.7}
+.rainbars .rb.now i{outline:2px solid #e85d86;outline-offset:1px}
+.rainbars .rb-ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:3px}
 .rainsay{font-size:13px;color:#3a7bc8;font-weight:700;margin-top:3px;word-break:keep-all;line-height:1.45}
 .windsay{font-size:13px;color:var(--muted);margin-top:2px;word-break:keep-all;line-height:1.45}
 .windsay:empty{display:none}
@@ -557,6 +569,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
           <div><span class="label">기압</span><b id="pres"></b></div>
           <div><span class="label">구름</span><b id="cloud"></b></div>
         </div>
+        <div class="rainbars" id="rainBars" hidden></div>
         <div class="daypick" role="group" aria-label="기록할 날">
           <button type="button" class="on" data-day="today" aria-pressed="true">오늘 날씨</button>
           <button type="button" data-day="yday" aria-pressed="false">🕘 어제 날씨</button>
@@ -977,6 +990,27 @@ async function fetchKma(lat, lon){
 /* 앞으로 3시간 비 소식 (15분 단위 예보)
    - 지금 안 오면: "☔ 약 40분 뒤 비 소식이 있어요"
    - 지금 오면:   "☔ 지금 비가 와요 · 약 1시간 뒤 그칠 것 같아요" */
+// 오늘 0시~23시 1시간마다 비 양(mm) — Open-Meteo 시간별 값 (지난 시간은 분석값, 남은 시간은 예보)
+function todayHourly(j){
+  const h=j.hourly; if(!h || !h.time || !h.precipitation) return null;
+  const day=((j.current && j.current.time) || h.time[0]).slice(0,10);
+  const v=new Array(24).fill(0); let n=0;
+  h.time.forEach((t,i)=>{ if(t.slice(0,10)===day){ v[+t.slice(11,13)] = h.precipitation[i] || 0; n++; } });
+  if(!n) return null;
+  return { day, h:v, sum: Math.round(v.reduce((a,b)=>a+b,0)*10)/10 };
+}
+function fmtMm(v){ return v>=10 ? String(Math.round(v)) : (Math.round(v*10)/10).toFixed(1); }
+/* 홈 화면: 오늘 시간대별 강수 막대 (비 소식이 있는 날만 보여요) */
+function renderRainBars(c){
+  const box=$("rainBars"), r=c && c.rainHours;
+  const today=new Date(), key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+  if(!r || !(r.sum>0) || r.day!==key){ box.hidden=true; box.innerHTML=""; return; }
+  const max=Math.max(...r.h), nowH=today.getHours();
+  box.innerHTML = `<div class="rb-top">☔ 오늘 시간대별 강수 · 하루 <b>${(Math.round(r.sum*10)/10)}mm</b></div>
+    <div class="rb-bars">${r.h.map((v,i)=>`<div class="rb${v>0?"":" z"}${i===nowH?" now":""}${i<nowH?" past":""}"><em>${v>=0.05?fmtMm(v):""}</em><i style="height:${v>0?Math.max(4,Math.round(Math.sqrt(v/max)*44)):2}px"></i></div>`).join("")}</div>
+    <div class="rb-ax"><span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span></div>`;
+  box.hidden=false;
+}
 function rainOutlook(j){
   const m=j.minutely_15; if(!m || !m.time || !m.precipitation) return null;
   const nowT=(j.current && j.current.time) || m.time[0];
@@ -1011,7 +1045,7 @@ async function fetchWeather(lat, lon, name){
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
     `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m`+
     `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=2`+
-    `&minutely_15=precipitation&forecast_minutely_15=24`+
+    `&minutely_15=precipitation&forecast_minutely_15=24&hourly=precipitation`+
     `&wind_speed_unit=ms&timezone=auto`;
   const useKma = !!KMA_PROXY && inKorea(lat, lon);
   kmaError = "";
@@ -1065,7 +1099,8 @@ function applyWeather(wr, kma, nm, lat, lon){
     tmax: wr && wr.daily ? wr.daily.temperature_2m_max[0] : null, tmin: wr && wr.daily ? wr.daily.temperature_2m_min[0] : null,
     psum: wr && wr.daily && wr.daily.precipitation_sum ? wr.daily.precipitation_sum[0] : null,
     src: "open-meteo",
-    rainMsg: wr ? rainOutlook(wr) : null
+    rainMsg: wr ? rainOutlook(wr) : null,
+    rainHours: wr ? todayHourly(wr) : null
   };
   if(kma){
     const n=kma.now||{}, t=kma.today||{};
@@ -1374,6 +1409,7 @@ function renderNow(){
   $("wind").title=wf.feel;
   $("windSay").innerHTML=`💨 지금 <b>${wf.name}</b>; ${wf.feel}`;
   $("rainSay").hidden = !c.rainMsg; $("rainSay").textContent = c.rainMsg || "";
+  renderRainBars(c);
   $("pres").textContent= c.pres!=null ? `${Math.round(c.pres)} hPa` : "–";
   $("cloud").textContent= c.cloud!=null ? `${c.cloud}%` : "–";
   if(recDay==="yday") loadYesterday();   // 위치가 바뀌면 어제 날씨도 다시
@@ -1505,7 +1541,7 @@ function setRecDay(day){
 function ydayHeroLoading(msg){
   const d=ydayDate();
   $("obsTime").textContent=`어제 ${d.getMonth()+1}.${d.getDate()} (${WD[d.getDay()]})`;
-  $("todayGrid").hidden=true; $("ydayGrid").hidden=false; $("rainSay").hidden=true;
+  $("todayGrid").hidden=true; $("ydayGrid").hidden=false; $("rainSay").hidden=true; $("rainBars").hidden=true;
   ["yRain","yRange","yCount"].forEach(id=>$(id).textContent="–");
   $("temp").innerHTML=""; $("windSay").innerHTML=""; $("temp").classList.add("two"); $("cond").textContent=""; $("hilo").innerHTML=""; $("chat").textContent=msg;
 }

@@ -195,6 +195,7 @@ select{font:inherit;color:var(--fg);background:var(--field);border:2px solid var
 .rainbars{margin:10px 0 2px;padding:10px 12px 8px;border-radius:16px;background:color-mix(in srgb,var(--rain) 8%,var(--surface));border:1.5px solid color-mix(in srgb,var(--rain) 22%,transparent)}
 .rainbars .rb-top{font-size:13px;color:var(--muted);margin-bottom:4px}
 .rainbars.dry{padding:7px 12px}
+.cmore .rainbars{margin:4px 0 2px}
 .rainbars.dry .rb-top{margin:0}
 .rainbars .rb-top b{color:#3a7bc8}
 .rainbars .rb-bars{display:flex;align-items:flex-end;gap:2px;height:60px;border-bottom:1.5px solid var(--line)}
@@ -571,7 +572,7 @@ mark{background:var(--mark);color:inherit;border-radius:6px;padding:0 2px}
           <div><span class="label">기압</span><b id="pres"></b></div>
           <div><span class="label">구름</span><b id="cloud"></b></div>
         </div>
-        <div class="rainbars" id="rainBars" hidden></div>
+        <div class="rainwrap" id="rainBars" hidden></div>
         <div class="daypick" role="group" aria-label="기록할 날">
           <button type="button" class="on" data-day="today" aria-pressed="true">오늘 날씨</button>
           <button type="button" data-day="yday" aria-pressed="false">🕘 어제 날씨</button>
@@ -1002,20 +1003,22 @@ function todayHourly(j){
   return { day, h:v, sum: Math.round(v.reduce((a,b)=>a+b,0)*10)/10 };
 }
 function fmtMm(v){ return v>=10 ? String(Math.round(v)) : (Math.round(v*10)/10).toFixed(1); }
-/* 홈 화면: 오늘 시간대별 강수 막대 (비 없는 날은 한 줄 안내만) */
+/* 시간대별 강수 막대 — 홈 화면과 예보 달력이 같이 써요
+   h: 0~23시 비 양 배열, nowH: 지금 시간(오늘일 때만, 아니면 -1), label: "오늘" / "이날" */
+function rainBarsBox(h, nowH, label){
+  const sum=Math.round(h.reduce((a,b)=>a+b,0)*10)/10;
+  if(!(sum>0)) return `<div class="rainbars dry"><div class="rb-top">☔ 시간대별 강수 · <b>${label}은 비 소식이 없어요</b> ☀️</div></div>`;
+  const max=Math.max(...h);
+  return `<div class="rainbars"><div class="rb-top">☔ ${label} 시간대별 강수 · 하루 <b>${sum}mm</b></div>
+    <div class="rb-bars">${h.map((v,i)=>`<div class="rb${v>0?"":" z"}${i===nowH?" now":""}${nowH>=0&&i<nowH?" past":""}"><em>${v>=0.05?fmtMm(v):""}</em><i style="height:${v>0?Math.max(4,Math.round(Math.sqrt(v/max)*44)):2}px"></i></div>`).join("")}</div>
+    <div class="rb-ax"><span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span></div></div>`;
+}
+/* 홈 화면: 오늘 시간대별 강수 (비 없는 날은 한 줄 안내만) */
 function renderRainBars(c){
   const box=$("rainBars"), r=c && c.rainHours;
   const today=new Date(), key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   if(!r || r.day!==key){ box.hidden=true; box.innerHTML=""; return; }
-  box.classList.toggle("dry", !(r.sum>0));
-  if(!(r.sum>0)){   // 비 없는 날은 한 줄로만
-    box.innerHTML = `<div class="rb-top">☔ 오늘 시간대별 강수 · <b>오늘은 비 소식이 없어요</b> ☀️</div>`;
-    box.hidden=false; return;
-  }
-  const max=Math.max(...r.h), nowH=today.getHours();
-  box.innerHTML = `<div class="rb-top">☔ 오늘 시간대별 강수 · 하루 <b>${(Math.round(r.sum*10)/10)}mm</b></div>
-    <div class="rb-bars">${r.h.map((v,i)=>`<div class="rb${v>0?"":" z"}${i===nowH?" now":""}${i<nowH?" past":""}"><em>${v>=0.05?fmtMm(v):""}</em><i style="height:${v>0?Math.max(4,Math.round(Math.sqrt(v/max)*44)):2}px"></i></div>`).join("")}</div>
-    <div class="rb-ax"><span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span></div>`;
+  box.innerHTML = rainBarsBox(r.h, today.getHours(), "오늘");
   box.hidden=false;
 }
 function rainOutlook(j){
@@ -1140,7 +1143,7 @@ async function loadForecast(lat, lon, place){
   fcPlace = place || ""; fcLoading = true; if(activeTab==="fc") renderCalendar();
   const base = `latitude=${lat}&longitude=${lon}&timezone=auto`;
   const [om, ens] = await Promise.all([
-    fetch(`https://api.open-meteo.com/v1/forecast?${base}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max&wind_speed_unit=ms&forecast_days=16&past_days=${pastDaysToPrevMonth()}`)
+    fetch(`https://api.open-meteo.com/v1/forecast?${base}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max&hourly=precipitation&wind_speed_unit=ms&forecast_days=16&past_days=${pastDaysToPrevMonth()}`)
       .then(r=>r.ok?r.json():null).catch(()=>null),
     fetch(`https://ensemble-api.open-meteo.com/v1/ensemble?${base}&models=gfs05&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=35`)
       .then(r=>r.ok?r.json():null).catch(()=>null)
@@ -1150,10 +1153,12 @@ async function loadForecast(lat, lon, place){
   if(!om || !om.daily){ fcError = true; if(activeTab==="fc") renderCalendar(); return; }
   fcError = false;
   fcRaw = {om:om.daily, ens:ens && ens.daily, lat, lon};
+  fcHourly = {};
+  if(om.hourly && om.hourly.time) om.hourly.time.forEach((t,i)=>{ const d=t.slice(0,10); (fcHourly[d] ||= new Array(24).fill(0))[+t.slice(11,13)] = om.hourly.precipitation[i] || 0; });
   fcData = buildForecast(om.daily, ens && ens.daily, lastKma && inKorea(lat,lon) ? lastKma.days : null);
   if(activeTab==="fc") renderCalendar();
 }
-let fcRaw = null;
+let fcRaw = null, fcHourly = {};   // fcHourly["2026-11-22"] = 0~23시 비 양
 // 기상청이 늦게 도착하면 예보 달력의 앞 며칠만 기상청 값으로 다시 맞춰요 (다시 받지 않고)
 function refreshForecastKma(){
   if(!fcRaw || !lastKma || !inKorea(fcRaw.lat, fcRaw.lon)) return;
@@ -1366,6 +1371,7 @@ function renderCalendar(){
           const w = sel.wind!=null ? sel.wind : sel.windMax;
           if(w==null) return (sel.windNote?`<span class="cwind">💨 ${esc(sel.windNote)}</span>`:"")+gust;
           return `<span class="cwind">💨 ${sel.wind!=null?"":"가장 셀 때 "}${windPhrase(w, sel.windNote)}</span>${gust}`; })()}
+        ${fcHourly[calSel] ? rainBarsBox(fcHourly[calSel], calSel===today ? new Date().getHours() : -1, calSel===today ? "오늘" : "이날") : ""}
         ${outfitLine}
         <small class="srcl ${sel.src}">${SRC_LABEL[sel.src]||""}</small></div></div>`
     : `<div class="cal-detail"><div class="cdt"><b class="cdate">${sm}월 ${sd}일 (${sw})</b><span>${calSel<today?"이날은 기록이 없어요.":"아직 예보가 나오지 않은 날이에요."}</span></div></div>`;
